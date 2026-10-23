@@ -1,0 +1,38 @@
+@startuml seq-1-uc01-login
+!include _style.iuml
+title UC-01 Σύνδεση (FR-01, NFR-02)
+actor "Χρήστης" as U
+boundary "UI-01a\nΣύνδεση" as UI
+control "Spring Security\n(form login)" as SEC
+control "AuthService" as AUTH
+entity "UserRepository" as REPO
+entity "User" as USR
+boundary "UI-01b\nΑρχική" as HOME
+
+U -> UI : όνομα χρήστη, κωδικός
+UI -> SEC : POST /login (CSRF token)
+SEC -> AUTH : loadUserByUsername(username)
+AUTH -> REPO : findByUsername(username)
+REPO --> AUTH : user
+AUTH -> USR : isLockedAt(now)
+note right of USR : ξεκλειδώνει μόνος του\nμετά από 15 λεπτά
+AUTH --> SEC : UserDetails(ρόλος, hash, locked)
+alt λογαριασμός κλειδωμένος ή ανενεργός
+  SEC --> UI : redirect /login?locked | ?disabled
+  UI --> U : «Ο λογαριασμός κλειδώθηκε…»
+else
+  SEC -> SEC : BCrypt.matches(κωδικός, hash)
+  alt λάθος κωδικός
+    SEC -> AUTH : onFailure(AuthenticationFailureBadCredentialsEvent)
+    AUTH -> USR : registerFailedLogin()
+    note right of USR : στην 3η αποτυχία:\nlocked = true
+    SEC --> UI : redirect /login?error
+    UI --> U : «Λάθος όνομα χρήστη ή κωδικός»
+  else σωστός κωδικός
+    SEC -> AUTH : onSuccess(AuthenticationSuccessEvent)
+    AUTH -> USR : resetFailedLogins()
+    SEC --> HOME : redirect /  (συνεδρία με ROLE_…)
+    HOME --> U : πίνακας ανά ρόλο\n(DashboardService)
+  end
+end
+@enduml

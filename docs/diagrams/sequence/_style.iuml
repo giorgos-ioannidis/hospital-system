@@ -1,0 +1,23 @@
+' Κοινή εμφάνιση των διαγραμμάτων ακολουθίας
+skinparam dpi 110
+skinparam shadowing false
+skinparam defaultFontName "Helvetica"
+skinparam sequenceMessageAlign left
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 260
+skinparam sequence {
+  ArrowColor #3A4A50
+  LifeLineBorderColor #9FB0B5
+  ParticipantBorderColor #0B7470
+  ParticipantBackgroundColor #FFFFFF
+  ActorBorderColor #0B7470
+  ActorBackgroundColor #E2F1EF
+  BoxBorderColor #DBE3E6
+  GroupBorderColor #9FB0B5
+  GroupHeaderFontColor #0B7470
+}
+skinparam note {
+  BackgroundColor #FDF1E3
+  BorderColor #D9A25F
+}
+hide footbox

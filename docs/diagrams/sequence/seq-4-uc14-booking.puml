@@ -1,0 +1,74 @@
+@startuml seq-4-uc14-booking
+!include _style.iuml
+title UC-14 Κράτηση Ραντεβού (FR-14) «include» UC-13 Έλεγχος Διαθεσιμότητας «extend» UC-16 Πληρωμή
+actor "Ασθενής" as P
+boundary "UI-11\nΚράτηση" as UI11
+boundary "UI-12\nΠροεπισκόπηση" as UI12
+boundary "UI-16\nΠληρωμή" as UI16
+control "AppointmentController" as C
+control "AppointmentService" as S
+control "AvailabilityChecker\n+ ResourceBookings" as AV
+control "AlternativeSlotFinder\n+ SlotGenerator" as ALT
+entity "Repositories" as DB
+control "PaymentGateway\n(Fake)" as PG
+control "«Observer»\nNotificationObserver" as OBS
+
+P -> UI11 : [1] «Νέο ραντεβού»
+UI11 -> C : GET /appointments/new
+C --> UI11 : [2] τμήματα και υπηρεσίες
+P -> UI11 : [3] τμήμα (π.χ. Καρδιολογικό)
+UI11 -> C : GET /appointments/new?departmentId
+C -> S : services(), doctorsWithHours()
+S -> DB : ιατροί, ώρες υποδοχής 14 ημερών
+C --> UI11 : [4] ιατροί με ειδικότητα και ώρες υποδοχής
+P -> UI11 : [5] ιατρός, υπηρεσία, ημερομηνία, ώρα, αιτία
+UI11 -> C : POST /appointments/check (BookingForm)
+
+group [6] ref UC-13 Έλεγχος Διαθεσιμότητας
+  C -> S : check(form)
+  S -> DB : ώρες υποδοχής, ενεργά ραντεβού,\nβάρδιες, άδειες/απουσίες ιατρού
+  S -> ALT : slotAt(officeHours, ώρα)
+  S -> AV : conflicts(ιατρός, αίθουσα, εξοπλισμός, slot)
+  AV -> AV : ώρες υποδοχής; ιατρός/αίθουσα/εξοπλισμός κρατημένοι;\nβάρδια; άδεια;
+  AV --> S : λόγοι μη διαθεσιμότητας (κενό = ελεύθερο)
+end
+
+alt [7] διαθέσιμη
+  S --> C : BookingCheck(διαθέσιμο)
+  C --> UI12 : [7] Προεπισκόπηση
+else [7a1] μη διαθέσιμη
+  S -> ALT : nearest(checker, ιατρός, εξοπλισμός, ώρες, ζητούμενη)
+  ALT --> S : 3 πλησιέστερες ελεύθερες ώρες
+  C --> UI11 : μήνυμα + 3 εναλλακτικές
+  P -> UI11 : [7a2] επιλέγει μία → πίσω στο βήμα 6
+end
+
+alt [8b1] Ακύρωση
+  P -> UI12 : Ακύρωση
+  UI12 --> P : τίποτα δεν καταχωρείται, τέλος ΠΧ
+else [8a1] «extend» UC-16 Πληρωμή τώρα
+  P -> UI12 : Πληρωμή τώρα
+  UI12 -> C : POST /appointments/payment
+  C --> UI16 : τρόποι πληρωμής
+  P -> UI16 : κάρτα ή ταμείο
+  UI16 -> C : [8a2] POST /appointments (paymentMethod)
+else [8] Επιβεβαίωση
+  P -> UI12 : Επιβεβαίωση
+  UI12 -> C : POST /appointments
+end
+
+C -> S : [9] book(username, form)
+activate S
+S -> DB : lockDoctor(id), lockEquipment(id)\n(SELECT … FOR UPDATE)
+S -> S : check(...) ξανά, με κλειδωμένους πόρους
+S -> DB : save(new Appointment): δεσμεύει ιατρό, αίθουσα, εξοπλισμό
+opt επιλέχθηκε τρόπος πληρωμής
+  S -> PG : charge(payment)  [μόνο για κάρτα]
+  PG --> S : κωδικός συναλλαγής
+  S -> DB : save(payment)
+end
+S -> OBS : publishEvent(AppointmentEvent BOOKED)
+OBS -> DB : ειδοποίηση ασθενούς (ουρά, UC-27)
+deactivate S
+C --> P : [10] «Το ραντεβού καταχωρήθηκε. Κωδικός: 4F1CE8F7»
+@enduml

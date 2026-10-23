@@ -1,0 +1,61 @@
+@startuml seq-2-uc05-schedule
+!include _style.iuml
+title UC-05 Παραγωγή Προγράμματος Βαρδιών/Εφημεριών (FR-05) — Strategy + Chain of Responsibility
+actor "Προϊστάμενος" as SUP
+boundary "UI-05a\nΠαράμετροι" as UIA
+control "ScheduleController" as C
+control "ScheduleService" as S
+control "«Strategy»\nScheduleGenerator\n(Fair | Greedy)" as G
+control "«CoR»\nRuleChain → Rule…" as R
+entity "ScheduleState" as ST
+entity "Repositories" as DB
+boundary "UI-05b\nΗμερολόγιο" as UIB
+
+SUP -> UIA : τμήμα, μήνας, μέγιστες ώρες,\nδίκαιη στρατηγική
+UIA -> C : POST /schedules (ScheduleParamsForm)
+C -> S : generate(form)
+S -> DB : προσωπικό, ελάχιστη στελέχωση,\nεγκεκριμένες άδειες, απουσίες, ώρες υποδοχής
+DB --> S
+S -> S : new SchedulingContext(…)
+S -> G : generate(context)
+G -> G : createShifts(): μία Shift ανά ημέρα × απαίτηση
+G -> ST : new ScheduleState(context, shifts)
+loop για κάθε βάρδια, με τη σειρά του fillOrder()
+  loop όσο η βάρδια είναι κάτω από το ελάχιστο
+    loop για κάθε μέλος του προσωπικού
+      G -> R : evaluate(υποψήφια ανάθεση, state)
+      note right of R
+        SpecialtyRule → ApprovedLeaveRule →
+        MinRestBetweenShiftsRule → RestAfterOnCallRule →
+        MaxWeeklyHoursRule → MinStaffingRule →
+        FairWeekendDistributionRule → BalancedHoursRule
+      end note
+      R --> G : Evaluation (παραβιάσεις, ποινή)
+    end
+    G -> ST : assign(καλύτερος υποψήφιος)
+  end
+end
+loop για κάθε ακάλυπτη βάρδια
+  G -> G : repair(): backtracking 1–2 ημερών\n(μετακίνηση και ξαναγέμισμα)
+end
+G -> R : review(state)
+R --> G : ακάλυπτες + παραβιάσεις μαλακών κανόνων
+G --> S : ScheduleResult (DRAFT)
+S -> DB : save(schedule)
+S --> C : schedule
+C --> UIB : redirect /schedules/{id}
+UIB --> SUP : ημερολόγιο, ακάλυπτες σε κόκκινο
+
+opt χειροκίνητη αλλαγή
+  SUP -> UIB : ημέρα, βάρδια, άτομο, προσθήκη/αφαίρεση
+  UIB -> C : POST /schedules/{id}/changes
+  C -> R : (μέσω ScheduleChangeService) evaluate(ανάθεση, state)
+  R --> C : προειδοποιήσεις → εφαρμογή μόνο με επιβεβαίωση
+end
+SUP -> UIB : Έγκριση
+UIB -> C : POST /schedules/{id}/approve
+C -> S : approve(id, supervisor)
+S -> DB : παλιό ACTIVE → archive()
+S -> S : schedule.approve(): DRAFT → ACTIVE
+C --> UIB : «Το πρόγραμμα εγκρίθηκε»
+@enduml

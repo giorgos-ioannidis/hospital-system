@@ -1,0 +1,54 @@
+@startuml seq-6-uc19-record
+!include _style.iuml
+title UC-19 Προβολή/Ενημέρωση Ιατρικού Ιστορικού (FR-20, FR-21, NFR-02)
+actor "Ιατρός" as D
+boundary "UI-18a\nΟι ασθενείς μου" as UIA
+boundary "UI-18b\nΦάκελος" as UIB
+control "RecordController" as C
+control "MedicalRecordService" as S
+control "RecordAccessPolicy" as POL
+control "AccessLogger\n(REQUIRES_NEW)" as LOG
+entity "Repositories" as DB
+boundary "Σελίδα 403" as ERR
+
+D -> UIA : Φάκελοι
+UIA -> C : GET /records
+C -> S : myPatients(username)
+S -> DB : νοσηλευόμενοι στο τμήμα +\nασθενείς με ραντεβού μαζί του
+C --> UIA : λίστα και αναζήτηση (ΑΜΚΑ ή ≥ 3 γράμματα)
+D -> UIA : επιλέγει ασθενή
+UIA -> C : GET /records/{patientId}
+C -> S : view(username, patientId)
+S -> S : isTreating(ιατρός, ασθενής)
+S -> DB : νοσηλεία στο τμήμα; ενεργό ραντεβού; εξέταση;
+S -> POL : canView(ιατρός, ασθενής, treating)
+POL --> S : true | false
+S -> LOG : log(χρήστης, ασθενής, VIEW, allowed)
+note right of LOG
+  Δική του συναλλαγή: η εγγραφή μένει
+  ακόμη κι όταν η πρόσβαση απορρίπτεται
+end note
+alt δεν επιτρέπεται
+  S --> C : RecordAccessDeniedException
+  C --> ERR : 403 «Δεν έχετε πρόσβαση. Η απόπειρα καταγράφηκε»
+else επιτρέπεται
+  S -> DB : ιστορικό, εξετάσεις, νοσηλείες
+  S -> POL : canWrite(…) για κάθε είδος εγγραφής
+  S --> C : RecordView
+  C --> UIB : φάκελος + φόρμα νέας εγγραφής
+  opt νέα εγγραφή (μόνο ιατρός: διάγνωση, αγωγή, αλλεργία, σημείωση)
+    D -> UIB : είδος, κείμενο
+    UIB -> C : POST /records/{id}/entries
+    C -> S : addEntry(username, patientId, type, text)
+    S -> POL : canWrite(ιατρός, ασθενής, treating, type)
+    S -> LOG : log(…, ADD_ENTRY, allowed)
+    S -> DB : record.addEntry(…)
+    C --> UIB : «Η εγγραφή προστέθηκε»
+  end
+end
+note over D, ERR
+  Ο Ασθενής ανοίγει μόνο τον δικό του φάκελο (/records/mine), γράφει μόνο «Σημείωση ασθενούς»
+  και βλέπει ποιος τον άνοιξε (UI-18c). Οι απορρίψεις λόγω ρόλου (π.χ. Προϊστάμενος)
+  καταγράφονται από τον RecordAccessDeniedHandler.
+end note
+@enduml

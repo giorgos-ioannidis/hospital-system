@@ -1,0 +1,47 @@
+@startuml seq-5-uc27-notification
+!include _style.iuml
+title UC-27 Αποστολή Ειδοποίησης SMS/Email (FR-31) — χρήστης «Χρόνος»
+actor "Χρόνος" as T
+control "DailyReminderJob" as J
+control "NotificationService" as N
+entity "AppointmentRepository" as AR
+entity "NotificationRepository" as NR
+entity "Notification" as NOTE
+control "EmailSender" as E
+control "SmsSender\n(LoggingSmsSender)" as SMS
+
+== Καθημερινή υπενθύμιση ==
+T -> J : @Scheduled 08:00 → remindTomorrow()
+J -> N : remindAppointmentsOn(αύριο)
+N -> AR : findActiveBetween(αύριο)
+AR --> N : ραντεβού
+loop για κάθε ραντεβού
+  N -> NR : save(Notification EMAIL)\n+ save(Notification SMS) αν υπάρχει τηλέφωνο
+end
+note over N, NR
+  Οι αλλαγές ραντεβού και προγράμματος μπαίνουν στην ίδια ουρά
+  από τον NotificationObserver («Observer»), στην ίδια συναλλαγή με την αλλαγή.
+end note
+
+== Αποστολή της ουράς ==
+T -> J : @Scheduled κάθε λεπτό → dispatch()
+J -> N : dispatchDue(now)
+N -> NR : findDue(now): PENDING και nextAttemptAt ≤ now
+NR --> N : ειδοποιήσεις
+loop για κάθε ειδοποίηση
+  alt κανάλι EMAIL
+    N -> E : send(email, θέμα, μήνυμα)
+  else κανάλι SMS
+    N -> SMS : send(τηλέφωνο, μήνυμα)
+  end
+  alt επιτυχία
+    N -> NOTE : markSent(now)
+  else αποτυχία (exception)
+    N -> NOTE : markFailed(now)
+    note right of NOTE
+      attempts < 3 → νέα προσπάθεια σε 30 λεπτά
+      3η αποτυχία → FAILED
+    end note
+  end
+end
+@enduml

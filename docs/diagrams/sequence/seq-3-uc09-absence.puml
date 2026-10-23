@@ -1,0 +1,61 @@
+@startuml seq-3-uc09-absence
+!include _style.iuml
+title UC-09 Δήλωση Απουσίας (FR-09) «include» UC-10 Εύρεση Αντικαταστάτη (FR-10)
+actor "Υγειονομικό\nΠροσωπικό" as HS
+boundary "UI-08\nΔήλωση απουσίας" as UI
+control "AbsenceController" as C
+control "AbsenceService" as S
+control "ScheduleService" as SS
+entity "Repositories" as DB
+control "«Observer»\nNotificationObserver" as OBS
+actor "Προϊστάμενος" as SUP
+boundary "UI-10\nΑναπληρώσεις" as UI10
+control "ReplacementFinder" as RF
+control "RuleChain" as R
+
+HS -> UI : [1] «Δήλωση ασθένειας»
+UI --> HS : [2] φόρμα UI-08
+HS -> UI : [3] έναρξη, λήξη, σχόλιο
+UI -> C : POST /absences (AbsenceForm)
+C -> C : [4] έλεγχος ημερομηνιών (Bean Validation)
+alt [4a1] μη έγκυρες (λήξη πριν την έναρξη ή στο παρελθόν)
+  C --> UI : μήνυμα λάθους
+  UI --> HS : [4a2] πίσω στο βήμα 3
+else έγκυρες
+  C -> S : declare(username, form)
+  S -> DB : save(new Absence)
+  S -> SS : releaseAssignments(me, από, έως)
+  SS -> DB : findAssignments(me, διάστημα, DRAFT/ACTIVE)
+  loop [5] για κάθε βάρδια του διαστήματος
+    SS -> SS : shift.removeAssignment() → «ακάλυπτη»
+  end
+  SS --> S : πλήθος βαρδιών
+  alt [5a1] καμία βάρδια
+    S --> C : 0
+    C --> UI : «Καταχωρήθηκε, δεν χρειάζεται αναπλήρωση»
+  else υπάρχουν ακάλυπτες
+    S -> OBS : publishEvent(ShiftsUncoveredEvent)
+    OBS -> DB : ειδοποίηση Προϊσταμένων (ουρά)
+    S --> C : πλήθος
+    C --> UI : [7] «Καταχωρήθηκε. N βάρδιες έμειναν ακάλυπτες»
+  end
+end
+
+== [6] «include» UC-10 Εύρεση Αντικαταστάτη ==
+SUP -> UI10 : Αναπληρώσεις
+UI10 -> S : uncovered()
+loop για κάθε ακάλυπτη βάρδια
+  S -> RF : find(shift, state, τμήμα, άλλα τμήματα)
+  RF -> R : evaluate(υποψήφιος, state)
+  R --> RF : επιτρέπεται;
+  RF --> S : ταξινόμηση: λιγότερες ώρες, μετά λιγότερες υπερωρίες\n(αν κανείς στο τμήμα → άλλα τμήματα)
+end
+S --> UI10 : βάρδιες με υποψήφιους
+SUP -> UI10 : επιλέγει αναπληρωτή
+UI10 -> S : assignReplacement(shift, staff)
+S -> R : evaluate(ανάθεση) — ξανά οι σκληροί κανόνες
+S -> DB : state.assign(αναπληρωτής)
+S -> OBS : publishEvent(ShiftAssignedEvent)
+OBS -> DB : ειδοποίηση αναπληρωτή
+UI10 --> SUP : «… ορίστηκε αναπληρωτής»
+@enduml
