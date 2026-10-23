@@ -81,21 +81,32 @@
                         </ul>
                     </li>
                 </ul>
-                <ul class="navbar-nav">
+                <ul class="navbar-nav nav-account">
+                    <li class="nav-item">
+                        <a class="nav-link nav-bell" th:href="@{/notifications}" title="Ειδοποιήσεις"
+                           th:classappend="${#strings.startsWith(path, '/notifications')} ? 'active'"
+                           th:attr="aria-label=${unreadNotifications > 0} ? 'Ειδοποιήσεις, ' + ${unreadNotifications} + ' νέες' : 'Ειδοποιήσεις'">
+                            <span class="bell-wrap"><i class="bi" th:classappend="${unreadNotifications > 0} ? 'bi-bell-fill' : 'bi-bell'" aria-hidden="true"></i>
+                                <span class="bell-badge" aria-hidden="true" th:if="${unreadNotifications > 0}"
+                                      th:text="${unreadNotifications > 9} ? '9+' : ${unreadNotifications}">3</span></span>
+                            <span class="d-xl-none">Ειδοποιήσεις</span>
+                        </a>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                            th:classappend="${#strings.startsWith(path, '/profile') or #strings.startsWith(path, '/notifications')} ? 'active'">
                             <span class="user-chip" aria-hidden="true"
-                                  th:text="${currentUser != null} ? ${#strings.substring(currentUser.firstName, 0, 1) + #strings.substring(currentUser.lastName, 0, 1)} : '?'">ΧΡ</span>
-                            <span class="d-xl-none d-xxl-inline text-truncate" style="max-width: 11rem"
-                                  th:text="${currentUser != null} ? ${currentUser.fullName} : ''">Όνομα</span>
+                                  th:text="${currentUser != null} ? ${#strings.toUpperCase(#strings.substring(currentUser.firstName, 0, 1) + #strings.substring(currentUser.lastName, 0, 1))} : '?'">ΧΡ</span>
+                            <span class="user-meta">
+                                <span class="user-name" th:text="${currentUser != null} ? ${currentUser.fullName} : ''">Όνομα</span>
+                                <span class="user-role" th:text="${currentUser != null} ? ${currentUser.role.label} : ''">Ρόλος</span>
+                            </span>
                             <span class="visually-hidden">Λογαριασμός</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><span class="dropdown-item-text small text-muted"
                                       th:text="${currentUser != null} ? ${currentUser.fullName} + ' · ' + ${currentUser.username} : ''"></span></li>
                             <li th:replace="~{layout :: dropLink('/profile', 'bi-person', 'Προφίλ')}"></li>
-                            <li th:replace="~{layout :: dropLink('/notifications', 'bi-bell', 'Ειδοποιήσεις')}"></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form th:action="@{/logout}" method="post">

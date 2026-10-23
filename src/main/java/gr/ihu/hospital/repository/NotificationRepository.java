@@ -15,5 +15,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query("select n from Notification n where n.status = :pending and n.nextAttemptAt <= :now order by n.id")
     List<Notification> findDue(LocalDateTime now, NotificationStatus pending);
 
+    long countByRecipientAndCreatedAtAfter(User recipient, LocalDateTime after);
+
     List<Notification> findTop30ByRecipientOrderByCreatedAtDescIdDesc(User recipient);
 }
