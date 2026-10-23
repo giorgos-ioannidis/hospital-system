@@ -1,0 +1,118 @@
+@startuml class-logic-services
+' Διάγραμμα κλάσεων 3/3: Κρατήσεις, κλίνες, πρόσβαση φακέλου, ειδοποιήσεις, πληρωμή
+' (gr.ihu.hospital.scheduling, booking, beds, notification, payment, domain.user/record)
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 60
+skinparam dpi 110
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName "Helvetica"
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #0B7470
+  ArrowColor #3A4A50
+}
+skinparam note {
+  BackgroundColor #FDF1E3
+  BorderColor #D9A25F
+}
+skinparam package {
+  BorderColor #9FB0B5
+  FontColor #0B7470
+}
+hide empty members
+left to right direction
+title Κρατήσεις, κλίνες, ειδοποιήσεις, πληρωμή: Factory, Observer — Πληροφοριακό Σύστημα Νοσοκομείου (Ομάδα 6)
+
+package "booking  (FR-11, FR-13)" {
+  class AvailabilityChecker {
+    + isFree(doctor, room, equipment, slot): boolean
+    + conflicts(doctor, room, equipment, slot): List<String>
+  }
+  class ResourceBookings {
+    ~ doctorBusy(doctor, slot): boolean
+    ~ roomBusy(room, slot): boolean
+    ~ equipmentBusy(equipment, slot): boolean
+  }
+  class SlotGenerator {
+    + generate(hours: OfficeHours): List<TimeSlot>
+    + slotAt(hours, start): TimeSlot
+  }
+  class AlternativeSlotFinder {
+    + nearest(checker, doctor, equipment, hours, requested, now): List<TimeSlot>
+  }
+}
+
+package "beds  (FR-18)" {
+  class BedAllocator {
+    + suggest(request, departmentBeds, otherBeds, active): List<Bed>
+    + fits(request, bed, active): boolean
+    ~ penalty(request, bed): int
+  }
+}
+
+package "πεδίο: user, record  (FR-03, NFR-02)" {
+  class UserFactory {
+    + {static} create(role: Role, data: StaffAccountData): User
+  }
+  class RecordAccessPolicy {
+    + canView(viewer, patient, treating): boolean
+    + canWrite(author, patient, treating, type): boolean
+  }
+}
+
+package "notification  (FR-31)" {
+  class NotificationObserver {
+    + onAppointment(e: AppointmentEvent)
+    + onShiftAssigned(e: ShiftAssignedEvent)
+    + onShiftsUncovered(e: ShiftsUncoveredEvent)
+    + onExam(e: ExamEvent)
+  }
+  class NotificationService {
+    + notify(recipient, subject, text)
+    + dispatchDue(now): int
+    + remindAppointmentsOn(day): int
+  }
+  class DailyReminderJob {
+    + remindTomorrow()  «@Scheduled 08:00»
+    + dispatch()  «@Scheduled ανά λεπτό»
+  }
+  class EmailSender
+  interface SmsSender <<interface>>
+  class LoggingSmsSender
+}
+
+package "payment  (FR-17)" {
+  interface PaymentGateway <<interface>> {
+    + charge(payment): String
+  }
+  class FakePaymentGateway
+}
+
+' ---- Booking ----
+AvailabilityChecker *-- ResourceBookings
+AlternativeSlotFinder --> SlotGenerator
+AlternativeSlotFinder ..> AvailabilityChecker
+
+' ---- Factory ----
+note right of UserFactory
+  «Factory»
+  λογαριασμοί προσωπικού ανά ρόλο (FR-03)
+end note
+
+' ---- Observer ----
+NotificationObserver --> NotificationService
+DailyReminderJob --> NotificationService
+NotificationService --> EmailSender
+NotificationService --> SmsSender
+SmsSender <|.. LoggingSmsSender
+note right of NotificationObserver
+  «Observer»
+  τα services δημοσιεύουν γεγονότα,
+  ο observer ειδοποιεί όποιον αφορούν
+end note
+
+PaymentGateway <|.. FakePaymentGateway
+@enduml

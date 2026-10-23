@@ -1,0 +1,308 @@
+@startuml class-domain
+' Διάγραμμα κλάσεων 1/3: Μοντέλο πεδίου (gr.ihu.hospital.domain)
+' Πηγή: ο κώδικας του project. Getters/setters παραλείπονται.
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 60
+skinparam dpi 110
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName "Helvetica"
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #0B7470
+  ArrowColor #3A4A50
+  HeaderBackgroundColor #E2F1EF
+}
+skinparam package {
+  BorderColor #9FB0B5
+  FontColor #0B7470
+}
+hide empty members
+left to right direction
+title Μοντέλο πεδίου — Πληροφοριακό Σύστημα Νοσοκομείου (Ομάδα 6)
+
+package "user" {
+  abstract class User {
+    - username: String
+    - passwordHash: String
+    - firstName: String
+    - lastName: String
+    - email: String
+    - phone: String
+    - enabled: boolean
+    - failedAttempts: int
+    - locked: boolean
+    + {abstract} getRole(): Role
+    + registerFailedLogin()
+    + isLockedAt(now): boolean
+    + unlock()
+    + setActive(active: boolean)
+    + getFullName(): String
+  }
+  abstract class HealthStaff {
+    + reassign(d: Department, s: Specialty)
+    + hasSpecialty(s: Specialty): boolean
+  }
+  class Doctor
+  class Nurse
+  class Supervisor {
+    + reassign(d: Department)
+  }
+  class Patient {
+    - amka: String
+    - gender: Gender
+    - birthDate: LocalDate
+  }
+  enum Role {
+    SUPERVISOR
+    DOCTOR
+    NURSE
+    PATIENT
+  }
+}
+
+package "organization" {
+  class Department {
+    - name: String
+    - floor: Integer
+  }
+  class Specialty {
+    - name: String
+  }
+  class Room {
+    - name: String
+  }
+  class Equipment {
+    - name: String
+  }
+  class MedicalService {
+    - name: String
+    - price: BigDecimal
+  }
+  class Ward {
+    - name: String
+    - nearStation: boolean
+  }
+  class Bed {
+    - label: String
+    - isolation: boolean
+  }
+  class Admission {
+    - severity: int
+    - isolation: boolean
+    - admittedAt: LocalDateTime
+    - dischargedAt: LocalDateTime
+    + discharge(now)
+    + isActive(): boolean
+  }
+}
+
+package "schedule" {
+  class Schedule {
+    - periodStart: LocalDate
+    - status: ScheduleStatus
+    - maxWeeklyHours: int
+    + addShift(sp, date, type, min): Shift
+    + approve(by: Supervisor)
+    + archive()
+    + getUncoveredShifts(): List<Shift>
+  }
+  class Shift {
+    - date: LocalDate
+    - type: ShiftType
+    - minStaff: int
+    + isUnderstaffed(): boolean
+    + getStart(): LocalDateTime
+    + getEnd(): LocalDateTime
+  }
+  class Assignment
+  class StaffingRequirement {
+    - shiftType: ShiftType
+    - minStaff: int
+  }
+  enum ShiftType {
+    MORNING
+    AFTERNOON
+    NIGHT
+    ON_CALL
+  }
+  enum ScheduleStatus {
+    DRAFT
+    ACTIVE
+    ARCHIVED
+  }
+}
+
+package "leave" {
+  interface Unavailability <<interface>> {
+    + blocks(staff, from, to): boolean
+  }
+  class LeaveRequest {
+    - type: LeaveType
+    - startDate: LocalDate
+    - endDate: LocalDate
+    - status: LeaveStatus
+    + approve(by: Supervisor)
+    + reject(by: Supervisor)
+  }
+  class Absence {
+    - startDate: LocalDate
+    - endDate: LocalDate
+  }
+}
+
+package "appointment" {
+  class OfficeHours {
+    - date: LocalDate
+    - startTime: LocalTime
+    - endTime: LocalTime
+    - slotMinutes: int
+    + getInterval(): TimeSlot
+  }
+  class Appointment {
+    - code: String
+    - start: LocalDateTime
+    - end: LocalDateTime
+    - reason: String
+    - status: AppointmentStatus
+    + cancel(now)
+    + reschedule(slot, room, now)
+    + changeStatus(next, now)
+    + isActive(): boolean
+  }
+  enum AppointmentStatus {
+    BOOKED
+    CONFIRMED
+    COMPLETED
+    NO_SHOW
+    CANCELLED
+    + isChangeable(): boolean
+    + checkTransitionTo(next, started)
+  }
+  class Payment {
+    - method: PaymentMethod
+    - amount: BigDecimal
+    - status: PaymentStatus
+    - transactionRef: String
+    + markPaid(ref, when)
+  }
+  class Rating {
+    - stars: int
+    - comment: String
+  }
+  class TimeSlot <<value>> {
+    - start: LocalDateTime
+    - end: LocalDateTime
+    + overlaps(other): boolean
+    + contains(other): boolean
+  }
+}
+
+package "record" {
+  class MedicalRecord {
+    + addEntry(author, type, text, now): RecordEntry
+  }
+  class RecordEntry {
+    - type: EntryType
+    - text: String
+    - createdAt: LocalDateTime
+  }
+  class AccessLog {
+    - action: AccessAction
+    - allowed: boolean
+    - occurredAt: LocalDateTime
+  }
+  class ExamOrder {
+    - notes: String
+    - status: ExamStatus
+    - orderedAt: LocalDateTime
+    - resultText: String
+    + blocksRepeatOf(exam, now): boolean
+    + recordResult(text, now)
+  }
+}
+
+package "admin" {
+  class Overtime {
+    - periodStart: LocalDate
+    - hours: int
+    - status: OvertimeStatus
+  }
+}
+
+package "notification" {
+  class Notification {
+    - channel: Channel
+    - subject: String
+    - status: NotificationStatus
+    - attempts: int
+    - nextAttemptAt: LocalDateTime
+    + isDue(now): boolean
+    + markSent(now)
+    + markFailed(now)
+  }
+}
+
+' ---- Κληρονομικότητα (DIT/NOCC) ----
+User <|-- HealthStaff
+User <|-- Supervisor
+User <|-- Patient
+HealthStaff <|-- Doctor
+HealthStaff <|-- Nurse
+User ..> Role
+
+Unavailability <|.. LeaveRequest
+Unavailability <|.. Absence
+Unavailability <|.. OfficeHours
+
+' ---- Οργάνωση ----
+HealthStaff "*" --> "1" Department
+HealthStaff "*" --> "1" Specialty
+Supervisor "*" --> "1" Department
+Room "*" --> "1" Department
+Equipment "*" --> "1" Department
+MedicalService "*" --> "1" Department
+MedicalService "*" --> "0..1" Equipment
+Ward "*" --> "1" Department
+Bed "*" --> "1" Ward
+Admission "*" --> "1" Bed
+Admission "*" --> "1" Patient
+
+' ---- Πρόγραμμα ----
+Schedule "*" --> "1" Department
+Schedule "1" *-- "*" Shift
+Shift "1" *-- "*" Assignment
+Assignment "*" --> "1" HealthStaff
+Shift "*" --> "1" Specialty
+StaffingRequirement "*" --> "1" Department
+StaffingRequirement "*" --> "1" Specialty
+LeaveRequest "*" --> "1" HealthStaff
+Absence "*" --> "1" HealthStaff
+
+' ---- Ραντεβού ----
+OfficeHours "*" --> "1" Doctor
+OfficeHours "*" --> "1" Room
+Appointment "*" --> "1" Patient
+Appointment "*" --> "1" Doctor
+Appointment "*" --> "1" Room
+Appointment "*" --> "1" MedicalService
+Appointment "*" --> "0..1" Equipment
+Appointment "1" -- "0..1" Payment
+Appointment "1" -- "0..1" Rating
+Appointment ..> TimeSlot
+
+' ---- Φάκελος ----
+MedicalRecord "1" -- "1" Patient
+MedicalRecord "1" *-- "*" RecordEntry
+RecordEntry "*" --> "1" User : author
+AccessLog "*" --> "1" User
+AccessLog "*" --> "1" Patient
+ExamOrder "*" --> "1" Patient
+ExamOrder "*" --> "1" Doctor
+ExamOrder "*" --> "1" MedicalService : exam
+
+Overtime "*" --> "1" HealthStaff
+Notification "*" --> "1" User : recipient
+@enduml

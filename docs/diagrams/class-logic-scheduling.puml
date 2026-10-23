@@ -1,0 +1,158 @@
+@startuml class-logic-scheduling
+' Διάγραμμα κλάσεων 2/3: Παραγωγή προγράμματος και κανόνες (gr.ihu.hospital.scheduling)
+' (gr.ihu.hospital.scheduling, booking, beds, notification, payment, domain.user/record)
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 60
+skinparam dpi 110
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName "Helvetica"
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #0B7470
+  ArrowColor #3A4A50
+}
+skinparam note {
+  BackgroundColor #FDF1E3
+  BorderColor #D9A25F
+}
+skinparam package {
+  BorderColor #9FB0B5
+  FontColor #0B7470
+}
+hide empty members
+left to right direction
+title Αλγόριθμοι προγράμματος: Strategy, Chain of Responsibility, Template Method — Πληροφοριακό Σύστημα Νοσοκομείου (Ομάδα 6)
+
+package "scheduling  (FR-05, FR-07, FR-10, FR-25)" {
+  interface ScheduleGenerator <<interface>> {
+    + generate(ctx: SchedulingContext): ScheduleResult
+  }
+  class GreedyScheduleGenerator {
+    - rules: RuleChain
+    + generate(ctx): ScheduleResult
+    # fillOrder(shifts, ctx): List<Shift>
+    - fill(shift, state)
+    - bestCandidate(shift, state): Assignment
+    - repair(target, state)
+    - tryMove(earlier, target, state): boolean
+  }
+  class FairScheduleGenerator {
+    # fillOrder(shifts, ctx): List<Shift>
+  }
+  class SchedulingContext {
+    - month: YearMonth
+    - staff: List<HealthStaff>
+    - requirements: List<StaffingRequirement>
+    - unavailabilities: List<Unavailability>
+    - maxWeeklyHours: int
+    + isUnavailable(staff, from, to): boolean
+    + isWeekendOrHoliday(date): boolean
+  }
+  class ScheduleState {
+    - byStaff: Map<HealthStaff, List<Assignment>>
+    + assign(a) / unassign(a)
+    + hoursInWeekOf(staff, date): int
+    + totalHours(staff): int
+    + overtimeHours(staff): int
+    + weekendOrHolidayShifts(staff): int
+  }
+  class ScheduleResult {
+    + getSchedule(): Schedule
+    + getUncovered(): List<Shift>
+    + getSoftViolations(): List<Violation>
+  }
+  class Evaluation {
+    - penalty: int
+    + isAllowed(): boolean
+  }
+  class Violation {
+    - rule: String
+    - hard: boolean
+    - detail: String
+  }
+  class ReplacementFinder {
+    + find(shift, state, department, others): List<HealthStaff>
+  }
+  class StaffingChecker {
+    + check(leave, staff, requirements, existing): List<StaffingGap>
+  }
+  class OvertimeCalculator {
+    + overtimeHours(assignments): int
+  }
+
+  package "rules" {
+    class RuleChain {
+      - first: Rule
+      + {static} standard(): RuleChain
+      + evaluate(candidate, state): Evaluation
+      + review(state): List<Violation>
+    }
+    abstract class Rule {
+      - name: String
+      - next: Rule
+      + evaluate(c, s, result) {final}
+      + review(s, found) {final}
+      # {abstract} apply(c, s, result)
+      # inspect(s, found)
+    }
+    abstract class HardRule {
+      # apply(c, s, result) {final}
+      # {abstract} allows(c, s): boolean
+    }
+    abstract class SoftRule {
+      - weight: int
+      # apply(c, s, result) {final}
+      # {abstract} penalty(c, s): int
+    }
+    class SpecialtyRule
+    class ApprovedLeaveRule
+    class MinRestBetweenShiftsRule
+    class RestAfterOnCallRule
+    class MaxWeeklyHoursRule
+    class MinStaffingRule
+    class FairWeekendDistributionRule
+    class BalancedHoursRule
+  }
+}
+
+' ---- Strategy ----
+ScheduleGenerator <|.. GreedyScheduleGenerator
+GreedyScheduleGenerator <|-- FairScheduleGenerator
+GreedyScheduleGenerator --> RuleChain
+GreedyScheduleGenerator ..> SchedulingContext
+GreedyScheduleGenerator ..> ScheduleState
+GreedyScheduleGenerator ..> ScheduleResult
+note right of ScheduleGenerator
+  «Strategy»
+  δύο τρόποι παραγωγής προγράμματος
+  (χρονολογικά / πρώτα Σ/Κ και εφημερίες)
+end note
+
+' ---- Chain of Responsibility + Template Method ----
+RuleChain --> "1" Rule : first
+Rule --> "0..1" Rule : next
+Rule <|-- HardRule
+Rule <|-- SoftRule
+HardRule <|-- SpecialtyRule
+HardRule <|-- ApprovedLeaveRule
+HardRule <|-- MinRestBetweenShiftsRule
+HardRule <|-- RestAfterOnCallRule
+HardRule <|-- MaxWeeklyHoursRule
+HardRule <|-- MinStaffingRule
+SoftRule <|-- FairWeekendDistributionRule
+SoftRule <|-- BalancedHoursRule
+Rule ..> Evaluation
+Rule ..> Violation
+note bottom of Rule
+  «Chain of Responsibility»: κάθε κανόνας ελέγχει και περνά στον επόμενο.
+  «Template Method»: evaluate()/review() σταθερά, οι υποκλάσεις υλοποιούν apply()/allows()/penalty().
+end note
+
+ReplacementFinder --> RuleChain
+ScheduleState --> SchedulingContext
+ScheduleState ..> OvertimeCalculator
+
+@enduml
