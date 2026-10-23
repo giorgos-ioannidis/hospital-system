@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Δήλωση ασθένειας</title></head>
+<body>
+<section class="row g-4">
+    <div class="col-12 col-lg-5">
+        <h1 class="h3">Δήλωση ασθένειας</h1>
+        <form th:action="@{/absences}" th:object="${form}" method="post" class="card card-body" novalidate>
+            <div th:replace="~{fragments :: globalErrors}"></div>
+            <div class="row">
+                <div class="col-sm-6" th:insert="~{fragments :: field('startDate', 'Από', 'date')}"></div>
+                <div class="col-sm-6" th:insert="~{fragments :: field('endDate', 'Έως', 'date')}"></div>
+            </div>
+            <div th:replace="~{fragments :: field('reason', 'Σημείωση (προαιρετικά)', 'text')}"></div>
+            <p class="small text-muted">Οι βάρδιές σας στο διάστημα θα ελευθερωθούν και ο Προϊστάμενος θα δει προτάσεις αναπληρωτών.</p>
+            <button class="btn btn-danger" type="submit">Δήλωση</button>
+        </form>
+    </div>
+    <div class="col-12 col-lg-7">
+        <h2 class="h5">Οι δηλώσεις μου</h2>
+        <p class="text-muted" th:if="${#lists.isEmpty(mine)}">Καμία δήλωση.</p>
+        <ul class="list-group" th:unless="${#lists.isEmpty(mine)}">
+            <li class="list-group-item" th:each="a : ${mine}"
+                th:text="${#temporals.format(a.startDate, 'dd/MM/yyyy')} + ' – ' + ${#temporals.format(a.endDate, 'dd/MM/yyyy')} + (${a.reason} ? ' · ' + ${a.reason} : '')"></li>
+        </ul>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Αρχική · Γενικό Νοσοκομείο</title></head>
+<body>
+<section>
+    <header class="page-head">
+        <div>
+            <p class="eyebrow mb-1" th:text="${#temporals.format(now, 'EEEE d MMMM yyyy')}">Ημερομηνία</p>
+            <h1 th:text="${greeting} + ', ' + ${me.firstName}">Καλημέρα</h1>
+            <p class="text-muted mb-0" th:switch="${me.role.name()}">
+                <span th:case="'SUPERVISOR'" th:text="'Προϊστάμενος/η · ' + ${me.department.name}"></span>
+                <span th:case="'DOCTOR'" th:text="'Ιατρός · ' + ${me.specialty.name} + ' · ' + ${me.department.name}"></span>
+                <span th:case="'NURSE'" th:text="'Νοσηλευτής/τρια · ' + ${me.department.name}"></span>
+                <span th:case="*">Ο λογαριασμός σας ως ασθενής</span>
+            </p>
+        </div>
+    </header>
+
+    <!-- ===================== Προϊστάμενος ===================== -->
+    <th:block sec:authorize="hasRole('SUPERVISOR')">
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <a class="stat" th:href="@{/absences/replacements}" th:classappend="${uncoveredCount > 0} ? 'stat-alert' : 'stat-ok'">
+                    <span class="stat-label"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i>Ακάλυπτες βάρδιες</span>
+                    <span class="stat-value" th:text="${uncoveredCount}">0</span>
+                    <span class="small text-muted">από σήμερα, στα ενεργά προγράμματα</span>
+                </a>
+            </div>
+            <div class="col-6 col-lg-3">
+                <a class="stat" th:href="@{/leave/pending}">
+                    <span class="stat-label"><i class="bi bi-envelope-paper" aria-hidden="true"></i>Αιτήσεις αδειών</span>
+                    <span class="stat-value" th:text="${pendingLeaves}">0</span>
+                    <span class="small text-muted">περιμένουν απάντηση</span>
+                </a>
+            </div>
+            <div class="col-6 col-lg-3">
+                <a class="stat" th:href="@{/beds}">
+                    <span class="stat-label"><i class="bi bi-hospital" aria-hidden="true"></i>Νοσηλευόμενοι</span>
+                    <span class="stat-value" th:text="${admitted}">0</span>
+                    <span class="small text-muted">σε όλα τα τμήματα</span>
+                </a>
+            </div>
+            <div class="col-6 col-lg-3">
+                <a class="stat" th:href="@{/beds/occupancy}" th:classappend="${wardAlerts > 0} ? 'stat-alert'">
+                    <span class="stat-label"><i class="bi bi-bar-chart" aria-hidden="true"></i>Θάλαμοι &gt; 90%</span>
+                    <span class="stat-value" th:text="${wardAlerts}">0</span>
+                    <span class="small text-muted">χρειάζονται προσοχή</span>
+                </a>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-12 col-lg-7">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="h6 mb-0">Επόμενες ακάλυπτες βάρδιες</h2>
+                        <a class="small" th:href="@{/absences/replacements}">Αναπληρώσεις</a>
+                    </div>
+                    <div class="card-body pt-1">
+                        <div class="empty-state" th:if="${#lists.isEmpty(uncoveredNext)}">
+                            <i class="bi bi-check2-circle" aria-hidden="true"></i>
+                            <span>Όλες οι βάρδιες των ενεργών προγραμμάτων είναι καλυμμένες.</span>
+                        </div>
+                        <ul class="agenda" th:unless="${#lists.isEmpty(uncoveredNext)}">
+                            <li th:each="s : ${uncoveredNext}">
+                                <time th:attr="datetime=${s.start}">
+                                    <span th:text="${#temporals.format(s.start, 'dd/MM')}"></span>
+                                    <small th:text="${#temporals.format(s.start, 'EEE HH:mm')}"></small>
+                                </time>
+                                <span>
+                                    <strong class="d-block fw-semibold" th:text="${s.type.label} + ' · ' + ${s.specialty.name}"></strong>
+                                    <span class="small text-muted" th:text="${s.schedule.department.name}"></span>
+                                </span>
+                                <span class="badge text-bg-danger" th:text="'λείπουν ' + ${s.missing}"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-5">
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6 col-lg-12 col-xl-6">
+                        <a class="card tile text-decoration-none" th:href="@{/schedules}">
+                            <span class="tile-icon" aria-hidden="true"><i class="bi bi-calendar3"></i></span>
+                            <span><strong>Παραγωγή προγράμματος</strong>
+                                <span th:text="${drafts > 0} ? ${drafts} + ' πρόχειρα περιμένουν έγκριση' : 'Μηνιαίο, με κανόνες'"></span></span>
+                        </a>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-12 col-xl-6">
+                        <a class="card tile text-decoration-none" th:href="@{/beds}">
+                            <span class="tile-icon" aria-hidden="true"><i class="bi bi-hospital"></i></span>
+                            <span><strong>Κατανομή κλίνης</strong><span>Φύλο, βαρύτητα, απομόνωση</span></span>
+                        </a>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-12 col-xl-6">
+                        <a class="card tile text-decoration-none" th:href="@{/overtime}">
+                            <span class="tile-icon" aria-hidden="true"><i class="bi bi-clock-history"></i></span>
+                            <span><strong>Υπερωρίες</strong><span>Υπολογισμός και έγκριση</span></span>
+                        </a>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-12 col-xl-6">
+                        <a class="card tile text-decoration-none" th:href="@{/staff}">
+                            <span class="tile-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+                            <span><strong>Προσωπικό</strong><span>Λογαριασμοί και ξεκλείδωμα</span></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <!-- ===================== Ιατρός / Νοσηλευτής ===================== -->
+    <th:block sec:authorize="hasAnyRole('DOCTOR', 'NURSE')">
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3" sec:authorize="hasRole('DOCTOR')">
+                <a class="stat" th:href="@{/appointments/doctor}">
+                    <span class="stat-label"><i class="bi bi-calendar-check" aria-hidden="true"></i>Ραντεβού σήμερα</span>
+                    <span class="stat-value" th:text="${appointmentsToday}">0</span>
+                    <span class="small text-muted">ενεργά</span>
+                </a>
+            </div>
+            <div class="col-6 col-lg-3" sec:authorize="hasRole('DOCTOR')">
+                <a class="stat" th:href="@{/exams}">
+                    <span class="stat-label"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>Εξετάσεις</span>
+                    <span class="stat-value" th:text="${pendingExams}">0</span>
+                    <span class="small text-muted">περιμένουν αποτέλεσμα</span>
+                </a>
+            </div>
+            <div class="col-6 col-lg-3">
+                <a class="stat" th:href="@{/records}">
+                    <span class="stat-label"><i class="bi bi-hospital" aria-hidden="true"></i>Νοσηλευόμενοι</span>
+                    <span class="stat-value" th:text="${admittedInDepartment}">0</span>
+                    <span class="small text-muted" th:text="'στο ' + ${me.department.name}"></span>
+                </a>
+            </div>
+            <div class="col-6 col-lg-3">
+                <a class="stat" th:href="@{/schedules/mine}">
+                    <span class="stat-label"><i class="bi bi-calendar3" aria-hidden="true"></i>Επόμενη βάρδια</span>
+                    <span class="stat-value fs-4 mt-1" th:text="${#lists.isEmpty(nextShifts)} ? '—' : ${#temporals.format(nextShifts[0].shift.start, 'EEE dd/MM')}">—</span>
+                    <span class="small text-muted" th:text="${#lists.isEmpty(nextShifts)} ? 'καμία στις επόμενες 30 ημέρες' : ${nextShifts[0].shift.type.label} + ' · ' + ${#temporals.format(nextShifts[0].shift.start, 'HH:mm')}"></span>
+                </a>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-12 col-lg-7" sec:authorize="hasRole('DOCTOR')">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="h6 mb-0">Επόμενα ραντεβού</h2>
+                        <a class="small" th:href="@{/appointments/doctor}">Όλα τα ραντεβού</a>
+                    </div>
+                    <div class="card-body pt-1">
+                        <div class="empty-state" th:if="${#lists.isEmpty(upcomingAppointments)}">
+                            <i class="bi bi-calendar" aria-hidden="true"></i>
+                            <span>Δεν έχετε κλεισμένα ραντεβού. <a th:href="@{/office-hours}">Ορίστε ώρες υποδοχής</a> για να σας βρίσκουν οι ασθενείς.</span>
+                        </div>
+                        <ul class="agenda" th:unless="${#lists.isEmpty(upcomingAppointments)}">
+                            <li th:each="a : ${upcomingAppointments}">
+                                <time th:attr="datetime=${a.start}">
+                                    <span th:text="${#temporals.format(a.start, 'HH:mm')}"></span>
+                                    <small th:text="${#temporals.format(a.start, 'EEE dd/MM')}"></small>
+                                </time>
+                                <span>
+                                    <a class="d-block fw-semibold text-decoration-none" th:href="@{/records/{id}(id=${a.patient.id})}" th:text="${a.patient.fullName}"></a>
+                                    <span class="small text-muted" th:text="${a.service.name} + ' · ' + ${a.room.name}"></span>
+                                </span>
+                                <span class="badge text-bg-light border" th:text="${a.status.label}"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12" th:classappend="${#authorization.expression('hasRole(''DOCTOR'')')} ? 'col-lg-5' : 'col-lg-7'">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="h6 mb-0">Οι επόμενες βάρδιές μου</h2>
+                        <a class="small" th:href="@{/schedules/mine}">Πρόγραμμα</a>
+                    </div>
+                    <div class="card-body pt-1">
+                        <div class="empty-state" th:if="${#lists.isEmpty(nextShifts)}">
+                            <i class="bi bi-calendar" aria-hidden="true"></i>
+                            <span>Δεν υπάρχει ενεργό πρόγραμμα με βάρδιές σας τις επόμενες 30 ημέρες.</span>
+                        </div>
+                        <ul class="agenda" th:unless="${#lists.isEmpty(nextShifts)}">
+                            <li th:each="a : ${nextShifts}">
+                                <time th:attr="datetime=${a.shift.start}">
+                                    <span th:text="${#temporals.format(a.shift.start, 'dd/MM')}"></span>
+                                    <small th:text="${#temporals.format(a.shift.start, 'EEE')}"></small>
+                                </time>
+                                <span>
+                                    <strong class="d-block fw-semibold" th:text="${a.shift.type.label}"></strong>
+                                    <span class="small text-muted" th:text="${#temporals.format(a.shift.start, 'HH:mm')} + '–' + ${#temporals.format(a.shift.end, 'HH:mm')}"></span>
+                                </span>
+                                <span></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12" sec:authorize="hasRole('NURSE')" th:classappend="'col-lg-5'">
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6 col-lg-12">
+                        <a class="card tile text-decoration-none" th:href="@{/records}">
+                            <span class="tile-icon" aria-hidden="true"><i class="bi bi-folder2-open"></i></span>
+                            <span><strong>Ιατρικοί φάκελοι</strong><span>Οι νοσηλευόμενοι του τμήματος</span></span>
+                        </a>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-12">
+                        <a class="card tile text-decoration-none" th:href="@{/leave}">
+                            <span class="tile-icon" aria-hidden="true"><i class="bi bi-sun"></i></span>
+                            <span><strong>Αίτηση άδειας</strong><span>Νέα αίτηση και ιστορικό</span></span>
+                        </a>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-12">
+                        <a class="card tile text-decoration-none" th:href="@{/absences}">
+                            <span class="tile-icon" aria-hidden="true"><i class="bi bi-thermometer-half"></i></span>
+                            <span><strong>Δήλωση απουσίας</strong><span>Ενημερώνεται αμέσως το τμήμα</span></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <!-- ===================== Ασθενής ===================== -->
+    <th:block sec:authorize="hasRole('PATIENT')">
+        <div class="row g-4">
+            <div class="col-12 col-lg-7">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="h6 mb-0">Τα επόμενα ραντεβού σας</h2>
+                        <a class="small" th:href="@{/appointments/mine}">Όλα</a>
+                    </div>
+                    <div class="card-body pt-1">
+                        <div class="empty-state" th:if="${#lists.isEmpty(upcomingAppointments)}">
+                            <i class="bi bi-calendar-plus" aria-hidden="true"></i>
+                            <span>Δεν έχετε επόμενο ραντεβού.</span>
+                            <a class="btn btn-primary mt-2" th:href="@{/appointments/new}">Κλείστε ραντεβού</a>
+                        </div>
+                        <ul class="agenda" th:unless="${#lists.isEmpty(upcomingAppointments)}">
+                            <li th:each="a : ${upcomingAppointments}">
+                                <time th:attr="datetime=${a.start}">
+                                    <span th:text="${#temporals.format(a.start, 'dd/MM')}"></span>
+                                    <small th:text="${#temporals.format(a.start, 'EEE HH:mm')}"></small>
+                                </time>
+                                <span>
+                                    <strong class="d-block fw-semibold" th:text="${a.service.name}"></strong>
+                                    <span class="small text-muted" th:text="${a.doctor.fullName} + ' · '"></span>
+                                    <a class="small" th:href="@{/info/map(room=${a.room.id})}" th:text="${a.room.name}"></a>
+                                </span>
+                                <span class="badge text-bg-light border font-monospace" th:text="${a.code}"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-5">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <a class="stat" th:href="@{/exams/mine}" th:classappend="${resultsReady > 0} ? 'stat-ok'">
+                            <span class="stat-label"><i class="bi bi-clipboard2-check" aria-hidden="true"></i>Αποτελέσματα</span>
+                            <span class="stat-value" th:text="${resultsReady}">0</span>
+                            <span class="small text-muted">διαθέσιμα</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a class="stat" th:href="@{/exams/mine}">
+                            <span class="stat-label"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Εξετάσεις</span>
+                            <span class="stat-value" th:text="${pendingExams}">0</span>
+                            <span class="small text-muted">σε αναμονή</span>
+                        </a>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-12">
+                        <a class="card tile text-decoration-none" th:href="@{/appointments/new}">
+                            <span class="tile-icon" aria-hidden="true"><i class="bi bi-calendar-plus"></i></span>
+                            <span><strong>Νέο ραντεβού</strong><span>Τμήμα, ιατρός, ώρα</span></span>
+                        </a>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-12">
+                        <a class="card tile text-decoration-none" th:href="@{/records/mine}">
+                            <span class="tile-icon" aria-hidden="true"><i class="bi bi-folder2-open"></i></span>
+                            <span><strong>Ο φάκελός μου</strong><span th:text="${admitted} ? 'Νοσηλεύεστε αυτή τη στιγμή' : 'Ιστορικό και ποιος το είδε'"></span></span>
+                        </a>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-12">
+                        <a class="card tile text-decoration-none" th:href="@{/info/map}">
+                            <span class="tile-icon" aria-hidden="true"><i class="bi bi-map"></i></span>
+                            <span><strong>Χάρτης νοσοκομείου</strong><span>Βρείτε την αίθουσα του ραντεβού σας</span></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</section>
+</body>
+</html>

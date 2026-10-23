@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Ειδοποιήσεις</title></head>
+<body>
+<section>
+    <h1 class="h3 mb-3">Ειδοποιήσεις</h1>
+    <p class="small text-muted">Email και SMS. Στην έκδοση επίδειξης το SMS καταγράφεται και δεν αποστέλλεται.</p>
+    <p class="text-muted" th:if="${#lists.isEmpty(notifications)}">Δεν υπάρχουν ειδοποιήσεις.</p>
+    <div class="table-responsive" th:unless="${#lists.isEmpty(notifications)}">
+        <table class="table table-hover small">
+            <thead><tr><th>Ημερομηνία</th><th>Κανάλι</th><th>Θέμα</th><th>Μήνυμα</th><th>Κατάσταση</th></tr></thead>
+            <tbody>
+            <tr th:each="n : ${notifications}">
+                <td th:text="${#temporals.format(n.createdAt, 'dd/MM HH:mm')}"></td>
+                <td th:text="${n.channel}"></td>
+                <td th:text="${n.subject}"></td>
+                <td th:text="${n.message}"></td>
+                <td th:text="${n.status.name() == 'SENT'} ? 'Στάλθηκε' : (${n.status.name() == 'FAILED'} ? 'Απέτυχε' : 'Σε αναμονή (' + ${n.attempts} + '/3)')"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

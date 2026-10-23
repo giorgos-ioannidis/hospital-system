@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Ραντεβού ιατρού</title></head>
+<body>
+<section>
+    <h1 class="h3 mb-3">Τα ραντεβού μου</h1>
+    <p class="text-muted" th:if="${#lists.isEmpty(appointments)}">Δεν υπάρχουν ραντεβού.</p>
+    <div class="table-responsive" th:unless="${#lists.isEmpty(appointments)}">
+        <table class="table align-middle">
+            <thead><tr><th>Ημέρα και ώρα</th><th>Ασθενής</th><th>Υπηρεσία</th><th>Αίθουσα</th><th>Αιτία</th><th>Κατάσταση</th><th></th></tr></thead>
+            <tbody>
+            <tr th:each="a : ${appointments}" th:classappend="${!a.active} ? 'text-muted'">
+                <td th:text="${#temporals.format(a.start, 'EEE dd/MM HH:mm')}"></td>
+                <td th:text="${a.patient.fullName} + ' · ΑΜΚΑ ' + ${a.patient.amka}"></td>
+                <td th:text="${a.service.name}"></td>
+                <td th:text="${a.room.name}"></td>
+                <td th:text="${a.reason}"></td>
+                <td>
+                    <span th:text="${a.status.label}"></span>
+                    <span class="d-block small text-muted" th:if="${a.rating != null}" th:text="'★ ' + ${a.rating.stars} + '/5'"></span>
+                    <a class="d-block small" th:href="@{/records/{id}(id=${a.patient.id})}">Φάκελος</a>
+                </td>
+                <td>
+                    <form th:if="${a.active}" th:action="@{/appointments/{id}/status(id=${a.id})}" method="post" class="d-flex gap-1">
+                        <label class="visually-hidden" th:for="'s-' + ${a.id}">Κατάσταση</label>
+                        <select class="form-select form-select-sm" name="status" th:id="'s-' + ${a.id}">
+                            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.label}"></option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-primary" type="submit">Αλλαγή</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

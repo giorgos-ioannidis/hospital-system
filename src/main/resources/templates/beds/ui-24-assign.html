@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Κατανομή κλίνης</title></head>
+<body>
+<section class="row g-4">
+    <div class="col-12 col-lg-5">
+        <h1 class="h3">Κατανομή κλίνης</h1>
+        <form th:action="@{/beds}" method="get" class="card card-body">
+            <label class="form-label" for="amka">ΑΜΚΑ ασθενούς</label>
+            <input class="form-control mb-2" id="amka" name="amka" th:value="${amka}" pattern="\d{11}" required>
+            <label class="form-label" for="departmentId">Τμήμα εισαγωγής</label>
+            <select class="form-select mb-2" id="departmentId" name="departmentId">
+                <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}" th:selected="${d.id == departmentId}"></option>
+            </select>
+            <label class="form-label" for="severity">Βαρύτητα</label>
+            <select class="form-select mb-2" id="severity" name="severity">
+                <option th:each="n : ${#numbers.sequence(1, 3)}" th:value="${n}" th:selected="${n == severity}"
+                        th:text="${n} + (${n == 3} ? ' (βαριά)' : (${n == 1} ? ' (ελαφριά)' : ''))"></option>
+            </select>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="isolation" name="isolation" value="true" th:checked="${isolation}">
+                <label class="form-check-label" for="isolation">Χρειάζεται απομόνωση</label>
+            </div>
+            <button class="btn btn-primary" type="submit">Πρόταση κλίνης</button>
+        </form>
+        <div class="card card-body mt-3" th:if="${patient}">
+            <h2 class="h6" th:text="'Προτάσεις για ' + ${patient.fullName}"></h2>
+            <p class="small text-danger" th:if="${#lists.isEmpty(suggestions)}">Δεν υπάρχει κατάλληλη ελεύθερη κλίνη σε κανένα τμήμα.</p>
+            <form th:each="b, it : ${suggestions}" th:action="@{/beds/admit}" method="post" class="d-flex justify-content-between align-items-center border-top py-2">
+                <input type="hidden" name="amka" th:value="${amka}">
+                <input type="hidden" name="bedId" th:value="${b.id}">
+                <input type="hidden" name="severity" th:value="${severity}">
+                <input type="hidden" name="isolation" th:value="${isolation}">
+                <span>
+                    <strong th:text="${it.first} ? 'Καλύτερη: ' : 'Εναλλακτική: '"></strong>
+                    <span th:text="${b.ward.department.name} + ' · ' + ${b.name}"></span>
+                    <span class="badge text-bg-light border" th:if="${b.ward.nearStation}">σταθμός</span>
+                    <span class="badge text-bg-light border" th:if="${b.isolation}">απομόνωση</span>
+                </span>
+                <button class="btn btn-sm btn-success" type="submit">Εισαγωγή</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-12 col-lg-7">
+        <h2 class="h5">Νοσηλευόμενοι</h2>
+        <div class="table-responsive">
+            <table class="table table-hover small align-middle">
+                <thead><tr><th>Ασθενής</th><th>Κλίνη</th><th>Βαρύτητα</th><th>Από</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="a : ${admissions}">
+                    <td th:text="${a.patient.fullName}"></td>
+                    <td th:text="${a.bed.ward.department.name} + ' · ' + ${a.bed.name}"></td>
+                    <td th:text="${a.severity}"></td>
+                    <td th:text="${#temporals.format(a.admittedAt, 'dd/MM HH:mm')}"></td>
+                    <td>
+                        <form th:action="@{/beds/{id}/discharge(id=${a.id})}" method="post">
+                            <button class="btn btn-sm btn-outline-secondary" type="submit">Εξιτήριο</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

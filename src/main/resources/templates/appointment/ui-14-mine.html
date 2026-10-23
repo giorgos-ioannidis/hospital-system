@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Τα ραντεβού μου</title></head>
+<body>
+<section>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h1 class="h3 mb-0">Τα ραντεβού μου</h1>
+        <div class="page-actions">
+            <a class="btn btn-outline-secondary" th:href="@{/export/appointments}">PDF</a>
+            <a class="btn btn-primary" th:href="@{/appointments/new}">Νέο ραντεβού</a>
+        </div>
+    </div>
+    <p class="text-muted" th:if="${#lists.isEmpty(appointments)}">Δεν έχετε ραντεβού.</p>
+    <p class="small text-muted" th:unless="${#lists.isEmpty(appointments)}">Ακύρωση ή αλλαγή επιτρέπεται έως 24 ώρες πριν.</p>
+    <div class="table-responsive" th:unless="${#lists.isEmpty(appointments)}">
+        <table class="table table-stack align-middle">
+            <thead><tr><th>Κωδικός</th><th>Ημέρα και ώρα</th><th>Ιατρός</th><th>Υπηρεσία</th><th>Αίθουσα</th><th>Κατάσταση</th><th>Πληρωμή</th><th>Ενέργειες</th></tr></thead>
+            <tbody>
+            <tr th:each="a : ${appointments}" th:with="changeable=${(a.status.name() == 'BOOKED' or a.status.name() == 'CONFIRMED') and a.start.isAfter(deadline)}">
+                <td data-label="Κωδικός" class="font-monospace" th:text="${a.code}"></td>
+                <td data-label="Ημέρα και ώρα" th:text="${#temporals.format(a.start, 'EEE dd/MM/yyyy HH:mm')}"></td>
+                <td data-label="Ιατρός" th:text="${a.doctor.fullName}"></td>
+                <td data-label="Υπηρεσία" th:text="${a.service.name}"></td>
+                <td data-label="Αίθουσα"><a th:href="@{/info/map(room=${a.room.id})}" th:text="${a.room.name}" title="Δείτε στον χάρτη"></a></td>
+                <td data-label="Κατάσταση" th:text="${a.status.label}"></td>
+                <td data-label="Πληρωμή" th:text="${a.payment == null} ? '—' : (${a.payment.status.name() == 'PAID'} ? 'Πληρώθηκε (' + ${a.payment.transactionRef} + ')' : 'Στο ταμείο')"></td>
+                <td data-label="Ενέργειες">
+                    <span th:if="${a.rating != null}" th:text="'★ ' + ${a.rating.stars} + '/5'"></span>
+                    <form th:if="${a.status.name() == 'COMPLETED' and a.rating == null}" th:action="@{/appointments/{id}/rating(id=${a.id})}"
+                          method="post" class="d-flex gap-1">
+                        <label class="visually-hidden" th:for="'r-' + ${a.id}">Αξιολόγηση</label>
+                        <select class="form-select form-select-sm" name="stars" th:id="'r-' + ${a.id}">
+                            <option th:each="n : ${#numbers.sequence(5, 1, -1)}" th:value="${n}" th:text="${n} + ' ★'"></option>
+                        </select>
+                        <label class="visually-hidden" th:for="'c-' + ${a.id}">Σχόλιο</label>
+                        <input class="form-control form-control-sm" name="comment" th:id="'c-' + ${a.id}" placeholder="Σχόλιο" maxlength="500">
+                        <button class="btn btn-sm btn-outline-primary" type="submit">Αξιολόγηση</button>
+                    </form>
+                    <div class="d-flex flex-wrap gap-1" th:if="${changeable}">
+                        <form th:action="@{/appointments/{id}/cancel(id=${a.id})}" method="post">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Ακύρωση</button>
+                        </form>
+                        <form th:action="@{/appointments/{id}/reschedule(id=${a.id})}" method="post" class="d-flex flex-wrap gap-1">
+                            <label class="visually-hidden" th:for="'d-' + ${a.id}">Νέα ημέρα</label>
+                            <input class="form-control form-control-sm" type="date" name="date" th:id="'d-' + ${a.id}" required>
+                            <label class="visually-hidden" th:for="'t-' + ${a.id}">Νέα ώρα</label>
+                            <input class="form-control form-control-sm" type="time" step="300" name="time" th:id="'t-' + ${a.id}" required>
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Αλλαγή</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Αποτελέσματα εξετάσεων</title></head>
+<body>
+<section>
+    <h1 class="h3 mb-3">Αποτελέσματα εξετάσεων</h1>
+    <p class="text-muted" th:if="${#lists.isEmpty(orders)}">Δεν έχετε εξετάσεις.</p>
+    <div class="table-responsive" th:unless="${#lists.isEmpty(orders)}">
+        <table class="table table-stack table-hover align-middle">
+            <thead><tr><th>Εξέταση</th><th>Παραγγελία</th><th>Ιατρός</th><th>Κατάσταση</th><th>Αποτέλεσμα</th><th></th></tr></thead>
+            <tbody>
+            <tr th:each="o : ${orders}">
+                <td data-label="Εξέταση" th:text="${o.exam.name}"></td>
+                <td data-label="Παραγγελία" th:text="${#temporals.format(o.orderedAt, 'dd/MM/yyyy')}"></td>
+                <td data-label="Ιατρός" th:text="${o.doctor.fullName}"></td>
+                <td data-label="Κατάσταση" th:text="${o.status.label}"></td>
+                <td data-label="Αποτέλεσμα" th:text="${o.resultText} ?: '—'"></td>
+                <td data-label=""><a class="btn btn-sm btn-outline-secondary" th:if="${o.resultText}" th:href="@{/export/exam/{id}(id=${o.id})}">PDF</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

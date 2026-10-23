@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Χάρτης νοσοκομείου</title></head>
+<body>
+<section class="row g-4">
+    <div class="col-12 col-lg-8">
+        <h1 class="h3">Χάρτης νοσοκομείου</h1>
+        <p class="small text-muted">Επιλέξτε αίθουσα για να δείτε πού βρίσκεται και ποιος δέχεται σήμερα.</p>
+        <div class="card mb-3" th:each="floor : ${floors}">
+            <div class="card-header fw-bold" th:text="${floor.key == 0} ? 'Ισόγειο' : ${floor.key} + 'ος όροφος'"></div>
+            <div class="card-body row g-3">
+                <div class="col-12 col-md-6" th:each="d : ${floor.value}">
+                    <div class="border rounded p-2 h-100">
+                        <div class="fw-semibold mb-2" th:text="${d.department.name}"></div>
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            <a class="btn btn-sm" th:each="r : ${d.rooms}" th:href="@{/info/map(room=${r.id})}" th:text="${r.name}"
+                               th:classappend="${selected != null and selected.id == r.id} ? 'btn-primary' : 'btn-outline-primary'"
+                               th:attr="aria-current=${selected != null and selected.id == r.id} ? 'location' : null"></a>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge text-bg-light border" th:each="w : ${d.wards}" th:text="${w.name}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-4">
+        <div class="card card-body position-sticky" style="top: 1rem" th:if="${selected}">
+            <h2 class="h5" th:text="${selected.name}"></h2>
+            <p class="mb-1" th:text="${selected.department.name}"></p>
+            <p class="text-muted" th:text="${selected.department.floor == 0} ? 'Ισόγειο' : ${selected.department.floor} + 'ος όροφος'"></p>
+            <h3 class="h6">Σήμερα</h3>
+            <p class="small text-muted" th:if="${#lists.isEmpty(todayHours)}">Κανείς ιατρός δεν δέχεται σήμερα εδώ.</p>
+            <ul class="small" th:unless="${#lists.isEmpty(todayHours)}">
+                <li th:each="h : ${todayHours}"
+                    th:text="${h.doctor.fullName} + ' · ' + ${#temporals.format(h.startTime, 'HH:mm')} + '–' + ${#temporals.format(h.endTime, 'HH:mm')}"></li>
+            </ul>
+        </div>
+        <div class="card card-body text-muted" th:unless="${selected}">Δεν έχει επιλεγεί αίθουσα.</div>
+    </div>
+</section>
+</body>
+</html>

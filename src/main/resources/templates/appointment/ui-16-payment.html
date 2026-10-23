@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Πληρωμή</title></head>
+<body>
+<section class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <h1 class="h3">Επιλογή τρόπου πληρωμής</h1>
+        <div class="alert alert-warning" th:unless="${check.available}">
+            Η ώρα δεν είναι πλέον διαθέσιμη. <a th:href="@{/appointments/new(departmentId=${form.departmentId})}">Επιλέξτε άλλη</a>.
+        </div>
+        <th:block th:if="${check.available}">
+            <div class="card card-body mb-3" th:insert="~{fragments :: bookingSummary(${check}, ${form})}"></div>
+            <form th:action="@{/appointments}" method="post" class="card card-body">
+                <th:block th:replace="~{fragments :: bookingHidden(${form})}"></th:block>
+                <fieldset class="mb-3">
+                    <legend class="form-label fs-6">Τρόπος πληρωμής</legend>
+                    <div class="form-check" th:each="m, it : ${methods}">
+                        <input class="form-check-input" type="radio" name="paymentMethod" th:id="'method-' + ${m}"
+                               th:value="${m}" th:checked="${it.first}">
+                        <label class="form-check-label" th:for="'method-' + ${m}" th:text="${m.label}"></label>
+                    </div>
+                </fieldset>
+                <p class="small text-muted">Δοκιμαστική πληρωμή: δεν ζητούνται στοιχεία κάρτας και δεν γίνεται πραγματική χρέωση.</p>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" type="submit">Πληρωμή και καταχώριση</button>
+                    <a class="btn btn-outline-secondary" th:href="@{/appointments/new(departmentId=${form.departmentId})}">Ακύρωση</a>
+                </div>
+            </form>
+        </th:block>
+    </div>
+</section>
+</body>
+</html>

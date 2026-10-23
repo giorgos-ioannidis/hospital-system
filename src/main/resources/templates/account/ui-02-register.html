@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{auth/auth-layout :: auth(~{::title}, ~{::section})}">
+<head><title>Εγγραφή ασθενούς</title></head>
+<body>
+<section>
+    <div>
+        <h1 class="h3 mb-1">Εγγραφή ασθενούς</h1>
+        <p class="text-muted mb-4">Για να κλείνετε ραντεβού και να βλέπετε τον φάκελό σας.</p>
+        <form th:action="@{/register}" th:object="${form}" method="post" class="card register-form" novalidate>
+            <div th:replace="~{fragments :: globalErrors}"></div>
+            <div class="row">
+                <div class="col-sm-6" th:insert="~{fragments :: field('firstName', 'Όνομα', 'text')}"></div>
+                <div class="col-sm-6" th:insert="~{fragments :: field('lastName', 'Επώνυμο', 'text')}"></div>
+            </div>
+            <div th:replace="~{fragments :: field('amka', 'ΑΜΚΑ (11 ψηφία)', 'text')}"></div>
+            <div class="row">
+                <div class="col-sm-6" th:insert="~{fragments :: field('birthDate', 'Ημερομηνία γέννησης', 'date')}"></div>
+                <div class="col-sm-6 mb-3">
+                    <label class="form-label" for="gender">Φύλο</label>
+                    <select class="form-select" id="gender" th:field="*{gender}"
+                            th:classappend="${#fields.hasErrors('gender')} ? 'is-invalid'">
+                        <option value="">—</option>
+                        <option value="F">Γυναίκα</option>
+                        <option value="M">Άνδρας</option>
+                    </select>
+                    <div class="invalid-feedback" th:errors="*{gender}"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6" th:insert="~{fragments :: field('email', 'Email', 'email')}"></div>
+                <div class="col-sm-6" th:insert="~{fragments :: field('phone', 'Τηλέφωνο', 'tel')}"></div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6" th:insert="~{fragments :: field('username', 'Όνομα χρήστη', 'text')}"></div>
+                <div class="col-sm-6" th:insert="~{fragments :: field('password', 'Κωδικός (≥ 8)', 'password')}"></div>
+            </div>
+            <button class="btn btn-primary btn-lg w-100" type="submit">Δημιουργία λογαριασμού</button>
+        </form>
+        <p class="text-center mt-3 mb-0"><a th:href="@{/login}">Έχω ήδη λογαριασμό</a></p>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:hospital;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  flyway:
+    # Τα demo δεδομένα (γνωστοί κωδικοί) φορτώνονται ΜΟΝΟ στο dev, ποτέ στην κοινή βάση.
+    locations: classpath:db/migration,classpath:db/demo

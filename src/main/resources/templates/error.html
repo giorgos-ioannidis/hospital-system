@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Σφάλμα · Γενικό Νοσοκομείο</title></head>
+<body>
+<section class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6 py-4">
+        <div class="tile-icon mb-3" aria-hidden="true">
+            <i class="bi" th:classappend="${status == 403} ? 'bi-shield-lock' : (${status == 404} ? 'bi-signpost' : 'bi-exclamation-triangle')"></i>
+        </div>
+        <th:block th:switch="${status}">
+            <th:block th:case="403">
+                <h1 class="h3">Δεν έχετε πρόσβαση</h1>
+                <p class="text-muted">Η σελίδα ή τα δεδομένα δεν επιτρέπονται για τον λογαριασμό σας. Αν αφορούσε ιατρικό φάκελο, η απόπειρα καταγράφηκε.</p>
+            </th:block>
+            <th:block th:case="404">
+                <h1 class="h3">Η σελίδα δεν βρέθηκε</h1>
+                <p class="text-muted" th:text="${message != null and message != ''} ? ${message} : 'Ο σύνδεσμος μπορεί να είναι παλιός ή λάθος.'"></p>
+            </th:block>
+            <th:block th:case="*">
+                <h1 class="h3">Δεν ολοκληρώθηκε η ενέργεια</h1>
+                <p class="text-muted" th:text="${message != null and message != ''} ? ${message} : 'Κάτι πήγε στραβά (' + ${status} + '). Δοκιμάστε ξανά.'"></p>
+            </th:block>
+        </th:block>
+        <div class="d-flex gap-2 mt-3">
+            <a class="btn btn-outline-secondary" href="javascript:history.back()"><i class="bi bi-arrow-left" aria-hidden="true"></i> Πίσω</a>
+            <a class="btn btn-primary" th:href="@{/}">Αρχική</a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

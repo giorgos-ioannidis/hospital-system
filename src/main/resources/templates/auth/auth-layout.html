@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org" th:fragment="auth(title, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Πληροφοριακό Σύστημα Νοσοκομείου: βάρδιες, ραντεβού, φάκελοι, κλίνες.">
+    <meta name="theme-color" content="#0b7470">
+    <title th:replace="${title}">Νοσοκομείο</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<a class="skip-link" href="#main">Μετάβαση στο περιεχόμενο</a>
+<div class="auth-shell">
+    <aside class="auth-aside" aria-label="Για το σύστημα">
+        <a class="brand" th:href="@{/}">
+            <span class="brand-mark" aria-hidden="true"><i class="bi bi-plus-lg"></i></span>
+            <span class="brand-name">Γενικό Νοσοκομείο<span class="brand-sub">Πληροφοριακό Σύστημα</span></span>
+        </a>
+        <div>
+            <h2>Βάρδιες, ραντεβού και φάκελοι στο ίδιο σύστημα.</h2>
+            <ul class="auth-points">
+                <li><i class="bi bi-calendar3" aria-hidden="true"></i><span>Το μηνιαίο πρόγραμμα βγαίνει αυτόματα, με τους κανόνες στελέχωσης, αδειών και ρεπό.</span></li>
+                <li><i class="bi bi-calendar-check" aria-hidden="true"></i><span>Κλείνετε ραντεβού μόνο όταν είναι ελεύθεροι ο ιατρός, η αίθουσα και ο εξοπλισμός.</span></li>
+                <li><i class="bi bi-shield-lock" aria-hidden="true"></i><span>Τον φάκελό σας τον βλέπουν μόνο όσοι σας παρακολουθούν. Κάθε πρόσβαση καταγράφεται.</span></li>
+            </ul>
+        </div>
+        <p class="small mb-0">Ομάδα 6 · Μηχανική Λογισμικού · ΔΙΠΑΕ</p>
+    </aside>
+    <main id="main" class="auth-main" tabindex="-1">
+        <div class="auth-card">
+            <div class="alert alert-success d-flex gap-2" role="status" th:if="${success}">
+                <i class="bi bi-check-circle" aria-hidden="true"></i><span th:text="${success}"></span>
+            </div>
+            <div th:insert="${content}"></div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

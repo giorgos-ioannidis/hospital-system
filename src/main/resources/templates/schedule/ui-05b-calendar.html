@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Πρόγραμμα</title></head>
+<body>
+<section>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h1 class="h3 mb-0">
+            <span th:text="${schedule.department.name} + ' · ' + ${#temporals.format(schedule.periodStart, 'LLLL yyyy')}"></span>
+            <span class="badge fs-6" th:classappend="${schedule.draft} ? 'text-bg-warning' : 'text-bg-success'"
+                  th:text="${schedule.draft} ? 'Πρόχειρο' : 'Ενεργό'"></span>
+        </h1>
+        <form th:if="${schedule.draft}" th:action="@{/schedules/{id}/approve(id=${schedule.id})}" method="post">
+            <button class="btn btn-success" type="submit">Έγκριση προγράμματος</button>
+        </form>
+    </div>
+
+    <div class="alert alert-warning" th:if="${warnings != null and !#lists.isEmpty(warnings)}">
+        <strong>Προειδοποιήσεις κανόνων:</strong>
+        <ul class="mb-2"><li th:each="w : ${warnings}" th:text="${w}"></li></ul>
+        <form th:if="${pendingChange}" th:action="@{/schedules/{id}/changes(id=${schedule.id})}" method="post">
+            <input type="hidden" name="date" th:value="${pendingChange.date}">
+            <input type="hidden" name="slot" th:value="${pendingChange.slot}">
+            <input type="hidden" name="staffId" th:value="${pendingChange.staffId}">
+            <input type="hidden" name="add" th:value="${pendingChange.add}">
+            <input type="hidden" name="confirm" value="true">
+            <button class="btn btn-sm btn-warning" type="submit">Εφαρμογή παρ' όλα αυτά</button>
+        </form>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-md-6">
+            <div class="card card-body" th:classappend="${#lists.isEmpty(schedule.uncoveredShifts)} ? 'border-success' : 'border-danger'">
+                <strong th:text="${#lists.size(schedule.uncoveredShifts)} + ' ακάλυπτες βάρδιες'"></strong>
+                <span class="small text-muted">Με κόκκινο στο ημερολόγιο. Καλύψτε τις με χειροκίνητη αλλαγή ή αναπλήρωση.</span>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card card-body">
+                <strong>Μαλακοί κανόνες</strong>
+                <ul class="small mb-0">
+                    <li th:each="v : ${violations}" th:if="${!v.hard}" th:text="${v}"></li>
+                </ul>
+                <span class="small text-success" th:if="${#lists.isEmpty(violations.?[!hard])}">Χωρίς παραβιάσεις.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive mb-4">
+        <table class="table table-bordered table-sm schedule-grid">
+            <thead class="table-light">
+            <tr><th>Ημέρα</th><th th:each="c : ${calendar.columns}" th:text="${c.value}"></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${calendar.rows}">
+                <th th:classappend="${row.weekend} ? 'table-secondary'" th:text="${#temporals.format(row.date, 'EEE dd/MM')}"></th>
+                <td th:each="shift : ${row.cells}" th:classappend="${shift != null and shift.understaffed} ? 'table-danger'">
+                    <th:block th:if="${shift != null}">
+                        <span class="d-block" th:each="a : ${shift.assignments}" th:text="${a.staff.lastName}"></span>
+                        <span class="text-danger fw-bold" th:if="${shift.understaffed}" th:text="'λείπουν ' + ${shift.missing}"></span>
+                    </th:block>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2 class="h5">Χειροκίνητη αλλαγή</h2>
+    <p class="small text-muted">Η αλλαγή ελέγχεται με τους ίδιους κανόνες με τον αλγόριθμο. Αν παραβιάζει κάποιον, θα σας ζητηθεί επιβεβαίωση.</p>
+    <form th:action="@{/schedules/{id}/changes(id=${schedule.id})}" th:object="${change}" method="post"
+          class="row g-2 align-items-end card card-body flex-row">
+        <div class="col-12 col-md-2">
+            <label class="form-label" for="date">Ημέρα</label>
+            <input class="form-control" type="date" id="date" th:field="*{date}" required
+                   th:min="${schedule.periodStart}" th:max="${schedule.month.atEndOfMonth()}">
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label" for="slot">Βάρδια</label>
+            <select class="form-select" id="slot" th:field="*{slot}">
+                <option th:each="c : ${calendar.columns}" th:value="${c.key}" th:text="${c.value}"></option>
+            </select>
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label" for="staffId">Άτομο</label>
+            <select class="form-select" id="staffId" th:field="*{staffId}">
+                <option th:each="m : ${staff}" th:value="${m.id}" th:text="${m.fullName} + ' (' + ${m.specialty.name} + ')'"></option>
+            </select>
+        </div>
+        <div class="col-12 col-md-2">
+            <label class="form-label" for="add">Ενέργεια</label>
+            <select class="form-select" id="add" th:field="*{add}">
+                <option value="true">Προσθήκη</option>
+                <option value="false">Αφαίρεση</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-2"><button class="btn btn-primary w-100" type="submit">Εφαρμογή</button></div>
+    </form>
+</section>
+</body>
+</html>

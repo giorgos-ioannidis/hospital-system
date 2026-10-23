@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Ιατρικός φάκελος</title></head>
+<body>
+<section th:with="p=${view.patient}">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+        <div>
+            <h1 class="h3 mb-0" th:text="${p.fullName}">Ασθενής</h1>
+            <span class="text-muted" th:text="'ΑΜΚΑ ' + ${p.amka} + ' · ' + ${#temporals.format(p.birthDate, 'dd/MM/yyyy')} + ' · ' + (${p.gender.name() == 'F'} ? 'Γυναίκα' : 'Άνδρας')"></span>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" sec:authorize="hasRole('PATIENT')" th:href="@{/records/mine/access-log}">Ποιος είδε τον φάκελο</a>
+            <a class="btn btn-outline-secondary" th:href="@{/export/record/{id}(id=${p.id})}">PDF</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-7">
+            <h2 class="h5">Ιστορικό</h2>
+            <p class="text-muted" th:if="${#lists.isEmpty(view.entries)}">Δεν υπάρχουν εγγραφές.</p>
+            <div class="card mb-2" th:each="e : ${view.entries}">
+                <div class="card-body py-2">
+                    <div class="small text-muted"
+                         th:text="${#temporals.format(e.createdAt, 'dd/MM/yyyy HH:mm')} + ' · ' + ${e.type.label} + ' · ' + ${e.author.fullName}"></div>
+                    <div th:text="${e.text}"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-5">
+            <form th:if="${view.writable}" th:action="@{/records/{id}/entries(id=${p.id})}" method="post" class="card card-body mb-4">
+                <h2 class="h6">Νέα εγγραφή</h2>
+                <label class="form-label" for="type">Είδος</label>
+                <select class="form-select mb-2" id="type" name="type">
+                    <option th:each="t : ${view.writableTypes}" th:value="${t}" th:text="${t.label}"></option>
+                </select>
+                <label class="form-label" for="text">Κείμενο</label>
+                <textarea class="form-control mb-2" id="text" name="text" rows="3" maxlength="2000" required></textarea>
+                <button class="btn btn-primary" type="submit">Προσθήκη</button>
+            </form>
+            <h2 class="h6">Εξετάσεις</h2>
+            <p class="small text-muted" th:if="${#lists.isEmpty(view.exams)}">Καμία εξέταση.</p>
+            <ul class="list-group mb-4" th:unless="${#lists.isEmpty(view.exams)}">
+                <li class="list-group-item small" th:each="x : ${view.exams}">
+                    <strong th:text="${x.exam.name}"></strong>
+                    <span class="text-muted" th:text="' · ' + ${#temporals.format(x.orderedAt, 'dd/MM')} + ' · ' + ${x.status.label}"></span>
+                    <div th:if="${x.resultText}" th:text="${x.resultText}"></div>
+                </li>
+            </ul>
+            <h2 class="h6">Νοσηλείες</h2>
+            <p class="small text-muted" th:if="${#lists.isEmpty(view.admissions)}">Καμία νοσηλεία.</p>
+            <ul class="list-group" th:unless="${#lists.isEmpty(view.admissions)}">
+                <li class="list-group-item small" th:each="a : ${view.admissions}"
+                    th:text="${a.bed.ward.department.name} + ' · ' + ${a.bed.name} + ' · από ' + ${#temporals.format(a.admittedAt, 'dd/MM/yyyy')} + (${a.active} ? ' (νοσηλεύεται)' : ' έως ' + ${#temporals.format(a.dischargedAt, 'dd/MM/yyyy')})"></li>
+            </ul>
+        </div>
+    </div>
+</section>
+</body>
+</html>

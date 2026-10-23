@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Προσωπικό</title></head>
+<body>
+<section class="row g-4">
+    <div class="col-12 col-lg-8">
+        <h1 class="h3">Λογαριασμοί προσωπικού</h1>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead><tr><th>Ονοματεπώνυμο</th><th>Ρόλος</th><th>Τμήμα</th><th>Ειδικότητα</th><th>Όνομα χρήστη</th><th>Ενέργειες</th></tr></thead>
+                <tbody>
+                <tr th:each="u : ${accounts}" th:classappend="${!u.enabled} ? 'text-muted'">
+                    <td th:text="${u.fullName}"></td>
+                    <td th:text="${u.role.label}"></td>
+                    <td th:text="${u.department?.name}"></td>
+                    <td th:text="${u.role.name() != 'SUPERVISOR'} ? ${u.specialty?.name} : '—'"></td>
+                    <td th:text="${u.username}"></td>
+                    <td class="d-flex flex-wrap gap-1">
+                        <a class="btn btn-sm btn-outline-primary" th:href="@{/staff/{id}(id=${u.id})}">Επεξεργασία</a>
+                        <form th:action="@{/staff/{id}/active(id=${u.id})}" method="post">
+                            <input type="hidden" name="active" th:value="${!u.enabled}">
+                            <button class="btn btn-sm btn-outline-secondary" type="submit"
+                                    th:text="${u.enabled} ? 'Απενεργοποίηση' : 'Ενεργοποίηση'"></button>
+                        </form>
+                        <form th:if="${u.locked}" th:action="@{/staff/{id}/unlock(id=${u.id})}" method="post">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Ξεκλείδωμα</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-12 col-lg-4">
+        <h2 class="h5">Νέος λογαριασμός</h2>
+        <form th:action="@{/staff}" th:object="${form}" method="post" class="card card-body" novalidate>
+            <div th:replace="~{fragments :: globalErrors}"></div>
+            <div class="mb-3">
+                <label class="form-label" for="role">Ρόλος</label>
+                <select class="form-select" id="role" th:field="*{role}" th:classappend="${#fields.hasErrors('role')} ? 'is-invalid'">
+                    <option th:each="r : ${roles}" th:value="${r}" th:text="${r.label}"></option>
+                </select>
+            </div>
+            <div th:replace="~{fragments :: field('firstName', 'Όνομα', 'text')}"></div>
+            <div th:replace="~{fragments :: field('lastName', 'Επώνυμο', 'text')}"></div>
+            <div class="mb-3">
+                <label class="form-label" for="departmentId">Τμήμα</label>
+                <select class="form-select" id="departmentId" th:field="*{departmentId}">
+                    <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}"></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="specialtyId">Ειδικότητα (όχι για Προϊστάμενο)</label>
+                <select class="form-select" id="specialtyId" th:field="*{specialtyId}">
+                    <option value="">—</option>
+                    <option th:each="s : ${specialties}" th:value="${s.id}" th:text="${s.name}"></option>
+                </select>
+            </div>
+            <div th:replace="~{fragments :: field('email', 'Email', 'email')}"></div>
+            <div th:replace="~{fragments :: field('phone', 'Τηλέφωνο', 'tel')}"></div>
+            <div th:replace="~{fragments :: field('username', 'Όνομα χρήστη', 'text')}"></div>
+            <div th:replace="~{fragments :: field('password', 'Αρχικός κωδικός', 'password')}"></div>
+            <button class="btn btn-primary" type="submit">Δημιουργία</button>
+        </form>
+    </div>
+</section>
+</body>
+</html>

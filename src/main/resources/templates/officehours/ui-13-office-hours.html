@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Ώρες υποδοχής</title></head>
+<body>
+<section class="row g-4">
+    <div class="col-12 col-lg-5">
+        <h1 class="h3">Ορισμός ωρών υποδοχής</h1>
+        <form th:action="@{/office-hours}" th:object="${form}" method="post" class="card card-body" novalidate>
+            <div th:replace="~{fragments :: globalErrors}"></div>
+            <div th:replace="~{fragments :: field('date', 'Ημερομηνία', 'date')}"></div>
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label class="form-label" for="startTime">Από</label>
+                    <input class="form-control" id="startTime" type="time" step="300" name="startTime"
+                           th:value="${#temporals.format(form.startTime, 'HH:mm')}" th:classappend="${#fields.hasErrors('startTime')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:errors="*{startTime}"></div>
+                </div>
+                <div class="col-6 mb-3">
+                    <label class="form-label" for="endTime">Έως</label>
+                    <input class="form-control" id="endTime" type="time" step="300" name="endTime"
+                           th:value="${#temporals.format(form.endTime, 'HH:mm')}" th:classappend="${#fields.hasErrors('endTime')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:errors="*{endTime}"></div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="roomId">Αίθουσα</label>
+                <select class="form-select" id="roomId" th:field="*{roomId}">
+                    <option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.name}"></option>
+                </select>
+            </div>
+            <div th:replace="~{fragments :: field('slotMinutes', 'Διάρκεια ραντεβού (λεπτά)', 'number')}"></div>
+            <p class="small text-muted">Απορρίπτονται ώρες που συγκρούονται με βάρδια, εφημερία, άδεια ή κράτηση της αίθουσας.</p>
+            <button class="btn btn-primary" type="submit">Καταχώριση</button>
+        </form>
+    </div>
+    <div class="col-12 col-lg-7">
+        <h2 class="h5">Οι επόμενες ώρες μου</h2>
+        <div class="alert alert-warning" th:if="${confirmDelete}">
+            Υπάρχουν <strong th:text="${confirmCount}"></strong> κλεισμένα ραντεβού σε αυτές τις ώρες. Αν συνεχίσετε,
+            θα ακυρωθούν και οι ασθενείς θα ειδοποιηθούν.
+            <form th:action="@{/office-hours/{id}/delete(id=${confirmDelete})}" method="post" class="mt-2">
+                <input type="hidden" name="confirm" value="true">
+                <button class="btn btn-sm btn-danger" type="submit">Διαγραφή και ακύρωση ραντεβού</button>
+            </form>
+        </div>
+        <p class="text-muted" th:if="${#lists.isEmpty(hours)}">Δεν έχετε ορίσει ώρες.</p>
+        <ul class="list-group" th:unless="${#lists.isEmpty(hours)}">
+            <li class="list-group-item d-flex justify-content-between align-items-center" th:each="h : ${hours}">
+                <span th:text="${#temporals.format(h.date, 'EEE dd/MM/yyyy')} + ' · ' + ${#temporals.format(h.startTime, 'HH:mm')} + '–' + ${#temporals.format(h.endTime, 'HH:mm')} + ' · ' + ${h.room.name} + ' · ανά ' + ${h.slotMinutes} + '′'"></span>
+                <form th:action="@{/office-hours/{id}/delete(id=${h.id})}" method="post">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Διαγραφή</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</section>
+</body>
+</html>

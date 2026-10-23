@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Αίτηση άδειας</title></head>
+<body>
+<section class="row g-4">
+    <div class="col-12 col-lg-5">
+        <h1 class="h3">Αίτηση άδειας</h1>
+        <form th:action="@{/leave}" th:object="${form}" method="post" class="card card-body" novalidate>
+            <div th:replace="~{fragments :: globalErrors}"></div>
+            <div class="mb-3">
+                <label class="form-label" for="type">Είδος</label>
+                <select class="form-select" id="type" th:field="*{type}" th:classappend="${#fields.hasErrors('type')} ? 'is-invalid'">
+                    <option th:each="t : ${types}" th:value="${t}" th:text="${t.label}"></option>
+                </select>
+            </div>
+            <div class="row">
+                <div class="col-sm-6" th:insert="~{fragments :: field('startDate', 'Από', 'date')}"></div>
+                <div class="col-sm-6" th:insert="~{fragments :: field('endDate', 'Έως', 'date')}"></div>
+            </div>
+            <div th:replace="~{fragments :: field('reason', 'Αιτιολογία (προαιρετικά)', 'text')}"></div>
+            <button class="btn btn-primary" type="submit">Υποβολή</button>
+        </form>
+    </div>
+    <div class="col-12 col-lg-7">
+        <h2 class="h5">Οι αιτήσεις μου</h2>
+        <p class="text-muted" th:if="${#lists.isEmpty(mine)}">Καμία αίτηση.</p>
+        <table class="table table-hover" th:unless="${#lists.isEmpty(mine)}">
+            <thead><tr><th>Είδος</th><th>Διάστημα</th><th>Κατάσταση</th></tr></thead>
+            <tbody>
+            <tr th:each="l : ${mine}">
+                <td th:text="${l.type.label}"></td>
+                <td th:text="${#temporals.format(l.startDate, 'dd/MM/yyyy')} + ' – ' + ${#temporals.format(l.endDate, 'dd/MM/yyyy')}"></td>
+                <td><span class="badge"
+                          th:classappend="${l.status.name() == 'APPROVED'} ? 'text-bg-success' : (${l.status.name() == 'REJECTED'} ? 'text-bg-danger' : 'text-bg-warning')"
+                          th:text="${l.status.name() == 'APPROVED'} ? 'Εγκρίθηκε' : (${l.status.name() == 'REJECTED'} ? 'Απορρίφθηκε' : 'Σε αναμονή')"></span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Εκκρεμείς άδειες</title></head>
+<body>
+<section>
+    <h1 class="h3 mb-3">Εκκρεμείς αιτήσεις αδειών</h1>
+    <p class="text-muted" th:if="${#lists.isEmpty(pending)}">Δεν υπάρχουν εκκρεμείς αιτήσεις.</p>
+    <div class="card mb-3" th:each="p : ${pending}" th:with="l=${p.request}">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between gap-2">
+                <div>
+                    <strong th:text="${l.staff.fullName}"></strong>
+                    <span class="text-muted" th:text="' · ' + ${l.staff.department.name} + ' · ' + ${l.staff.specialty.name}"></span>
+                    <div th:text="${l.type.label} + ': ' + ${#temporals.format(l.startDate, 'dd/MM/yyyy')} + ' – ' + ${#temporals.format(l.endDate, 'dd/MM/yyyy')}"></div>
+                    <div class="small text-muted" th:if="${l.reason}" th:text="${l.reason}"></div>
+                </div>
+                <div class="d-flex gap-2 align-items-start">
+                    <form th:action="@{/leave/{id}/approve(id=${l.id})}" method="post">
+                        <button class="btn btn-success btn-sm" type="submit">Έγκριση</button>
+                    </form>
+                    <form th:action="@{/leave/{id}/reject(id=${l.id})}" method="post">
+                        <button class="btn btn-outline-danger btn-sm" type="submit">Απόρριψη</button>
+                    </form>
+                </div>
+            </div>
+            <div class="alert alert-warning mt-3 mb-0 small" th:unless="${#lists.isEmpty(p.gaps)}">
+                <strong>Προσοχή στελέχωσης:</strong> αν εγκριθεί, το τμήμα πέφτει κάτω από το ελάχιστο σε
+                <span th:text="${#lists.size(p.gaps)}"></span> βάρδιες:
+                <span th:each="g, it : ${p.gaps}" th:text="${g.label} + (${it.last} ? '' : ', ')"></span>
+            </div>
+            <div class="small text-success mt-2" th:if="${#lists.isEmpty(p.gaps)}">Η στελέχωση επαρκεί.</div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

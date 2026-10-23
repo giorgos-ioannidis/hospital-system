@@ -1,0 +1,868 @@
+/*
+ * Design system του Πληροφοριακού Συστήματος Νοσοκομείου, πάνω από το Bootstrap 5.3.
+ * Μία απόχρωση (teal), μία οικογένεια ψυχρών γκρι, γραμματοσειρά Commissioner (σχεδιασμένη και για ελληνικά),
+ * φιλοξενημένη τοπικά (GDPR: καμία κλήση σε Google Fonts).
+ */
+
+@font-face {
+    font-family: "Commissioner";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("../fonts/commissioner-greek-wght-normal.woff2") format("woff2");
+    unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+
+@font-face {
+    font-family: "Commissioner";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("../fonts/commissioner-latin-wght-normal.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+                   U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+    --hs-bg: #f3f6f7;
+    --hs-surface: #ffffff;
+    --hs-ink: #12242a;
+    --hs-muted: #5a6b71;
+    --hs-line: #dbe3e6;
+    --hs-line-soft: #e9eef0;
+    --hs-accent: #0b7470;
+    --hs-accent-hover: #095d5a;
+    --hs-accent-soft: #e2f1ef;
+    --hs-accent-ink: #064744;
+    --hs-danger: #b42318;
+    --hs-danger-soft: #fdecea;
+    --hs-warning: #9a4a07;
+    --hs-warning-soft: #fdf1e3;
+    --hs-success: #0b6b47;
+    --hs-success-soft: #e4f4ec;
+    --hs-shadow: 0 1px 2px rgba(18, 36, 42, 0.05), 0 4px 16px -8px rgba(18, 36, 42, 0.10);
+    --hs-radius: 12px;
+    --hs-radius-sm: 8px;
+    --hs-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+    --bs-body-font-family: "Commissioner", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --bs-body-bg: var(--hs-surface);
+    --bs-body-color: var(--hs-ink);
+    --bs-secondary-color: var(--hs-muted);
+    --bs-border-color: var(--hs-line);
+    --bs-border-radius: var(--hs-radius-sm);
+    --bs-border-radius-lg: var(--hs-radius);
+    --bs-primary: #0b7470;
+    --bs-primary-rgb: 11, 116, 112;
+    --bs-link-color: var(--hs-accent);
+    --bs-link-color-rgb: 11, 116, 112;
+    --bs-link-hover-color: var(--hs-accent-hover);
+    --bs-link-hover-color-rgb: 9, 93, 90;
+    --bs-focus-ring-color: rgba(11, 116, 112, 0.28);
+    --bs-emphasis-color: var(--hs-ink);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--hs-bg);
+    font-feature-settings: "ss01" on;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+.text-muted,
+.text-body-secondary {
+    color: var(--hs-muted) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--hs-ink);
+    font-weight: 650;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+}
+
+p, li {
+    text-wrap: pretty;
+}
+
+/* Κωδικοί, ΑΜΚΑ, ώρες, ποσά: ψηφία ίδιου πλάτους. */
+.font-monospace,
+table,
+.tabular {
+    font-variant-numeric: tabular-nums;
+}
+
+a {
+    text-underline-offset: 0.18em;
+}
+
+:focus-visible {
+    outline: 3px solid rgba(11, 116, 112, 0.45);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ---------- Κέλυφος ---------- */
+
+.skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    z-index: 1100;
+    padding: 0.5rem 0.9rem;
+    background: var(--hs-ink);
+    color: #fff;
+    border-radius: var(--hs-radius-sm);
+    transition: top 160ms var(--hs-ease);
+}
+
+.skip-link:focus {
+    top: 0.75rem;
+    color: #fff;
+}
+
+.app-header {
+    background: var(--hs-surface);
+    border-bottom: 1px solid var(--hs-line);
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.app-header .navbar {
+    padding-block: 0.55rem;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--hs-ink);
+    text-decoration: none;
+    margin-right: 1.25rem;
+}
+
+.brand:hover {
+    color: var(--hs-ink);
+}
+
+.brand-mark {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 10px;
+    background: var(--hs-accent);
+    color: #fff;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 12px -4px rgba(11, 116, 112, 0.6);
+}
+
+.brand-name {
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+}
+
+.brand-sub {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--hs-muted);
+    letter-spacing: 0.01em;
+}
+
+.app-header .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--hs-muted);
+    font-weight: 550;
+    font-size: 0.93rem;
+    padding: 0.45rem 0.7rem !important;
+    border-radius: var(--hs-radius-sm);
+    transition: background-color 180ms var(--hs-ease), color 180ms var(--hs-ease);
+}
+
+.app-header .nav-link:hover {
+    color: var(--hs-ink);
+    background: var(--hs-line-soft);
+}
+
+.app-header .nav-link.active,
+.app-header .nav-link.show {
+    color: var(--hs-accent-ink);
+    background: var(--hs-accent-soft);
+}
+
+.app-header .nav-link .bi {
+    font-size: 1rem;
+}
+
+.app-header .navbar-toggler {
+    border: 1px solid var(--hs-line);
+}
+
+.dropdown-menu {
+    border: 1px solid var(--hs-line);
+    border-radius: var(--hs-radius);
+    box-shadow: var(--hs-shadow);
+    padding: 0.35rem;
+    --bs-dropdown-link-active-bg: var(--hs-accent-soft);
+    --bs-dropdown-link-active-color: var(--hs-accent-ink);
+}
+
+.dropdown-item {
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.45rem 0.65rem;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    background: var(--hs-accent-soft);
+    color: var(--hs-accent-ink);
+}
+
+.user-chip {
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 9px;
+    background: var(--hs-line-soft);
+    color: var(--hs-ink);
+    font-weight: 650;
+    font-size: 0.8rem;
+}
+
+.app-main {
+    flex: 1 0 auto;
+    padding-top: 1.75rem;
+    padding-bottom: 3.5rem;
+}
+
+.container-app {
+    max-width: 1320px;
+}
+
+.app-main h1 {
+    font-size: clamp(1.45rem, 1.1rem + 1vw, 1.85rem);
+}
+
+.app-main h2.h5 {
+    font-size: 1.08rem;
+}
+
+.app-footer {
+    border-top: 1px solid var(--hs-line);
+    background: var(--hs-surface);
+    color: var(--hs-muted);
+    font-size: 0.85rem;
+    padding: 1rem 0 1.15rem;
+}
+
+.app-footer a {
+    color: var(--hs-muted);
+}
+
+/* ---------- Επιφάνειες ---------- */
+
+.card {
+    --bs-card-border-color: var(--hs-line);
+    --bs-card-border-radius: var(--hs-radius);
+    --bs-card-cap-bg: transparent;
+    box-shadow: var(--hs-shadow);
+}
+
+.card-header {
+    border-bottom-color: var(--hs-line-soft);
+    padding-block: 0.8rem;
+}
+
+a.card {
+    color: var(--hs-ink);
+    transition: transform 200ms var(--hs-ease), box-shadow 200ms var(--hs-ease), border-color 200ms var(--hs-ease);
+}
+
+a.card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(11, 116, 112, 0.35);
+    box-shadow: 0 2px 4px rgba(18, 36, 42, 0.05), 0 14px 28px -14px rgba(11, 116, 112, 0.35);
+}
+
+a.card:active {
+    transform: translateY(0);
+}
+
+.list-group {
+    --bs-list-group-border-color: var(--hs-line);
+    --bs-list-group-border-radius: var(--hs-radius);
+    --bs-list-group-action-hover-bg: var(--hs-accent-soft);
+    --bs-list-group-action-hover-color: var(--hs-accent-ink);
+}
+
+/* ---------- Κουμπιά ---------- */
+
+.btn {
+    --bs-btn-font-weight: 600;
+    --bs-btn-border-radius: var(--hs-radius-sm);
+    letter-spacing: 0.005em;
+    transition: background-color 180ms var(--hs-ease), border-color 180ms var(--hs-ease),
+                color 180ms var(--hs-ease), transform 120ms var(--hs-ease), box-shadow 180ms var(--hs-ease);
+}
+
+.btn:active {
+    transform: translateY(1px) scale(0.99);
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--hs-accent);
+    --bs-btn-border-color: var(--hs-accent);
+    --bs-btn-hover-bg: var(--hs-accent-hover);
+    --bs-btn-hover-border-color: var(--hs-accent-hover);
+    --bs-btn-active-bg: var(--hs-accent-ink);
+    --bs-btn-active-border-color: var(--hs-accent-ink);
+    --bs-btn-disabled-bg: var(--hs-accent);
+    --bs-btn-disabled-border-color: var(--hs-accent);
+    box-shadow: 0 1px 2px rgba(6, 71, 68, 0.25);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--hs-accent);
+    --bs-btn-border-color: rgba(11, 116, 112, 0.45);
+    --bs-btn-hover-bg: var(--hs-accent-soft);
+    --bs-btn-hover-color: var(--hs-accent-ink);
+    --bs-btn-hover-border-color: var(--hs-accent);
+    --bs-btn-active-bg: var(--hs-accent-soft);
+    --bs-btn-active-color: var(--hs-accent-ink);
+    --bs-btn-active-border-color: var(--hs-accent);
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: var(--hs-ink);
+    --bs-btn-border-color: var(--hs-line);
+    --bs-btn-hover-bg: var(--hs-line-soft);
+    --bs-btn-hover-color: var(--hs-ink);
+    --bs-btn-hover-border-color: #c7d2d6;
+    --bs-btn-active-bg: var(--hs-line);
+    --bs-btn-active-color: var(--hs-ink);
+    background: var(--hs-surface);
+}
+
+.btn-success {
+    --bs-btn-bg: var(--hs-success);
+    --bs-btn-border-color: var(--hs-success);
+    --bs-btn-hover-bg: #08573a;
+    --bs-btn-hover-border-color: #08573a;
+}
+
+.btn-outline-success {
+    --bs-btn-color: var(--hs-success);
+    --bs-btn-border-color: rgba(11, 107, 71, 0.45);
+    --bs-btn-hover-bg: var(--hs-success-soft);
+    --bs-btn-hover-color: var(--hs-success);
+    --bs-btn-hover-border-color: var(--hs-success);
+}
+
+.btn-outline-danger {
+    --bs-btn-color: var(--hs-danger);
+    --bs-btn-border-color: rgba(180, 35, 24, 0.4);
+    --bs-btn-hover-bg: var(--hs-danger-soft);
+    --bs-btn-hover-color: var(--hs-danger);
+    --bs-btn-hover-border-color: var(--hs-danger);
+}
+
+.btn-danger {
+    --bs-btn-bg: var(--hs-danger);
+    --bs-btn-border-color: var(--hs-danger);
+}
+
+.btn-warning {
+    --bs-btn-bg: #f6d9b4;
+    --bs-btn-border-color: #f0c48f;
+    --bs-btn-color: #5c2c04;
+    --bs-btn-hover-bg: #f0c48f;
+    --bs-btn-hover-border-color: #e9b26f;
+    --bs-btn-hover-color: #5c2c04;
+}
+
+/* ---------- Φόρμες ---------- */
+
+.form-label {
+    font-weight: 600;
+    font-size: 0.88rem;
+    margin-bottom: 0.3rem;
+}
+
+.form-control,
+.form-select {
+    border-color: var(--hs-line);
+    background-color: var(--hs-surface);
+    transition: border-color 160ms var(--hs-ease), box-shadow 160ms var(--hs-ease);
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    border-color: var(--hs-accent);
+    box-shadow: 0 0 0 0.2rem var(--bs-focus-ring-color);
+}
+
+.form-check-input:checked {
+    background-color: var(--hs-accent);
+    border-color: var(--hs-accent);
+}
+
+.invalid-feedback {
+    font-weight: 500;
+}
+
+/* ---------- Πίνακες ---------- */
+
+.table {
+    --bs-table-bg: var(--hs-surface);
+    --bs-table-border-color: var(--hs-line-soft);
+    --bs-table-hover-bg: #f6faf9;
+    margin-bottom: 0;
+}
+
+.table > thead th {
+    color: var(--hs-muted);
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.01em;
+    background: #f8fafb;
+    border-bottom-color: var(--hs-line);
+    white-space: nowrap;
+}
+
+.table > tbody > tr {
+    transition: background-color 140ms var(--hs-ease);
+}
+
+.table > tbody > tr:hover > * {
+    --bs-table-bg-state: #f6faf9;
+}
+
+.table-responsive {
+    border: 1px solid var(--hs-line);
+    border-radius: var(--hs-radius);
+    background: var(--hs-surface);
+    box-shadow: var(--hs-shadow);
+}
+
+.table-responsive > .table > :not(caption) > * > * {
+    padding: 0.65rem 0.8rem;
+}
+
+.table-danger {
+    --bs-table-bg: var(--hs-danger-soft);
+    --bs-table-color: #7a1a12;
+}
+
+.table-secondary {
+    --bs-table-bg: #f1f4f5;
+}
+
+/* ---------- Ετικέτες και ειδοποιήσεις ---------- */
+
+.badge {
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 0.35em 0.6em;
+    letter-spacing: 0.01em;
+}
+
+.text-bg-success { background: var(--hs-success-soft) !important; color: var(--hs-success) !important; }
+.text-bg-warning { background: var(--hs-warning-soft) !important; color: var(--hs-warning) !important; }
+.text-bg-danger { background: var(--hs-danger-soft) !important; color: var(--hs-danger) !important; }
+.text-bg-light { background: #f4f7f8 !important; color: var(--hs-ink) !important; }
+
+.alert {
+    border-radius: var(--hs-radius);
+    border-width: 1px;
+    border-left-width: 4px;
+}
+
+.alert-success { --bs-alert-bg: var(--hs-success-soft); --bs-alert-color: #074d33; --bs-alert-border-color: #b5ddc8; border-left-color: var(--hs-success); }
+.alert-warning { --bs-alert-bg: var(--hs-warning-soft); --bs-alert-color: #6b3305; --bs-alert-border-color: #f2d3ad; border-left-color: #d97706; }
+.alert-danger { --bs-alert-bg: var(--hs-danger-soft); --bs-alert-color: #7a1a12; --bs-alert-border-color: #f5c2bd; border-left-color: var(--hs-danger); }
+
+.progress {
+    background: var(--hs-line-soft);
+}
+
+.progress-bar {
+    background-color: var(--hs-accent);
+}
+
+.list-group-item-danger {
+    background: var(--hs-danger-soft);
+    color: #7a1a12;
+}
+
+/* ---------- Αρχική (πίνακας ανά ρόλο) ---------- */
+
+.page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.page-head .eyebrow {
+    color: var(--hs-accent);
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.2rem;
+}
+
+.page-head h1 {
+    margin-bottom: 0.15rem;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    height: 100%;
+    padding: 1rem 1.1rem 1.1rem;
+    border: 1px solid var(--hs-line);
+    border-radius: var(--hs-radius);
+    background: var(--hs-surface);
+    box-shadow: var(--hs-shadow);
+    color: var(--hs-ink);
+    text-decoration: none;
+    transition: transform 200ms var(--hs-ease), border-color 200ms var(--hs-ease);
+}
+
+a.stat:hover {
+    transform: translateY(-2px);
+    border-color: rgba(11, 116, 112, 0.35);
+    color: var(--hs-ink);
+}
+
+.stat-label {
+    color: var(--hs-muted);
+    font-size: 0.85rem;
+    font-weight: 550;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-alert .stat-value { color: var(--hs-danger); }
+.stat-ok .stat-value { color: var(--hs-success); }
+
+.tile {
+    display: flex;
+    flex-direction: row;
+    gap: 0.85rem;
+    align-items: flex-start;
+    height: 100%;
+    padding: 1rem 1.1rem;
+}
+
+.tile-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 10px;
+    background: var(--hs-accent-soft);
+    color: var(--hs-accent-ink);
+    font-size: 1.3rem;
+}
+
+.tile-icon .bi::before {
+    font-weight: 600 !important;
+}
+
+.tile strong {
+    display: block;
+    font-weight: 650;
+    color: var(--hs-ink);
+}
+
+.tile > span:last-child > span {
+    color: var(--hs-muted);
+    font-size: 0.88rem;
+}
+
+.agenda {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.agenda li {
+    display: grid;
+    grid-template-columns: 4.6rem 1fr auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--hs-line-soft);
+}
+
+.agenda li:first-child {
+    border-top: 0;
+}
+
+.agenda time {
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+}
+
+.agenda time small {
+    display: block;
+    color: var(--hs-muted);
+    font-weight: 500;
+    font-size: 0.75rem;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    padding: 1.1rem 0 0.4rem;
+    color: var(--hs-muted);
+}
+
+.empty-state .bi {
+    font-size: 1.5rem;
+    color: #9fb0b5;
+}
+
+/* ---------- Σύνδεση ---------- */
+
+.auth-shell {
+    flex: 1 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 100dvh;
+}
+
+.auth-aside {
+    display: none;
+    position: relative;
+    overflow: hidden;
+    padding: 3rem clamp(2rem, 5vw, 4.5rem);
+    color: #e6f4f2;
+    background:
+        radial-gradient(120% 90% at 0% 0%, #12908b 0%, transparent 55%),
+        radial-gradient(90% 80% at 100% 100%, #053a38 0%, transparent 60%),
+        #0a5f5c;
+}
+
+.auth-aside::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.12;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath fill='%23ffffff' d='M21 14h6v7h7v6h-7v7h-6v-7h-7v-6h7z'/%3E%3C/svg%3E");
+    background-size: 48px 48px;
+    mask-image: linear-gradient(160deg, #000 10%, transparent 70%);
+}
+
+.auth-aside h2 {
+    color: #fff;
+    font-size: clamp(1.8rem, 1.2rem + 1.6vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    max-width: 18ch;
+}
+
+.auth-aside p,
+.auth-aside li {
+    max-width: 44ch;
+    color: #cfe9e6;
+}
+
+.auth-aside .brand,
+.auth-aside .brand:hover {
+    color: #fff;
+}
+
+.auth-aside .brand-mark {
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.auth-aside .brand-sub {
+    color: #b9dfdb;
+}
+
+.auth-points {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 2rem;
+}
+
+.auth-points li {
+    display: flex;
+    gap: 0.7rem;
+}
+
+.auth-points .bi {
+    color: #8fe0d8;
+    font-size: 1.15rem;
+    margin-top: 0.05rem;
+}
+
+.auth-main {
+    display: grid;
+    place-items: center;
+    padding: 2.5rem 1rem 3rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 25rem;
+}
+
+.auth-card .card {
+    padding: 1.6rem;
+}
+
+.auth-card:has(.register-form),
+.auth-card:has(.privacy) {
+    max-width: 36rem;
+}
+
+.demo-box {
+    margin-top: 1.25rem;
+    padding: 0.85rem 1rem;
+    border: 1px dashed #b9c7cb;
+    border-radius: var(--hs-radius);
+    font-size: 0.85rem;
+    color: var(--hs-muted);
+}
+
+.demo-box code {
+    color: var(--hs-accent-ink);
+}
+
+@media (min-width: 992px) {
+    .auth-shell {
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    }
+
+    .auth-aside {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+}
+
+/* ---------- Ημερολόγιο προγράμματος ---------- */
+
+.schedule-grid {
+    font-size: 0.82rem;
+}
+
+.schedule-grid th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: #f8fafb;
+    white-space: nowrap;
+}
+
+/* ---------- Κίνηση ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+@media print {
+    .app-header, .app-footer, .skip-link, form { display: none !important; }
+    .card, .table-responsive { box-shadow: none; }
+}
+
+/* ---------- Πίνακες σε κινητό: κάθε γραμμή γίνεται κάρτα με ετικέτες (data-label) ---------- */
+
+@media (max-width: 575.98px) {
+    .table-stack thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+
+    .table-stack,
+    .table-stack tbody,
+    .table-stack tr,
+    .table-stack td {
+        display: block;
+        width: 100%;
+    }
+
+    .table-stack tr {
+        padding: 0.6rem 0.9rem;
+        border-bottom: 1px solid var(--hs-line);
+    }
+
+    .table-stack tr:last-child {
+        border-bottom: 0;
+    }
+
+    .table-responsive > .table-stack > :not(caption) > * > * {
+        display: grid;
+        grid-template-columns: 7.5rem 1fr;
+        gap: 0.5rem;
+        padding: 0.3rem 0;
+        border: 0;
+    }
+
+    .table-stack td::before {
+        content: attr(data-label);
+        font-family: var(--bs-body-font-family);
+        color: var(--hs-muted);
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .table-stack td:empty {
+        display: none;
+    }
+}
+
+.page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.page-actions .btn {
+    white-space: nowrap;
+}

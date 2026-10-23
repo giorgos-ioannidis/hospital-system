@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Κράτηση ραντεβού</title></head>
+<body>
+<section>
+    <h1 class="h3 mb-3">Κράτηση ραντεβού</h1>
+
+    <form th:action="@{/appointments/new}" method="get" class="row g-2 align-items-end mb-4">
+        <div class="col-12 col-md-6">
+            <label class="form-label" for="departmentId">1. Τμήμα</label>
+            <select class="form-select" id="departmentId" name="departmentId">
+                <option value="">— Επιλέξτε —</option>
+                <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}"
+                        th:selected="${form.departmentId == d.id}"></option>
+            </select>
+        </div>
+        <div class="col-12 col-md-2"><button class="btn btn-outline-primary w-100" type="submit">Συνέχεια</button></div>
+    </form>
+
+    <div class="alert alert-warning" th:if="${check != null and !check.available}">
+        <strong>Η ώρα δεν είναι διαθέσιμη.</strong>
+        <ul class="mb-2"><li th:each="c : ${check.conflicts}" th:text="${c}"></li></ul>
+        <th:block th:unless="${#lists.isEmpty(check.alternatives)}">
+            <div class="mb-1">Πλησιέστερες ελεύθερες ώρες:</div>
+            <div class="d-flex flex-wrap gap-2">
+                <form th:each="alt : ${check.alternatives}" th:action="@{/appointments/check}" method="post">
+                    <input type="hidden" name="departmentId" th:value="${form.departmentId}">
+                    <input type="hidden" name="serviceId" th:value="${form.serviceId}">
+                    <input type="hidden" name="doctorId" th:value="${form.doctorId}">
+                    <input type="hidden" name="reason" th:value="${form.reason}">
+                    <input type="hidden" name="date" th:value="${#temporals.format(alt.start, 'yyyy-MM-dd')}">
+                    <input type="hidden" name="time" th:value="${#temporals.format(alt.start, 'HH:mm')}">
+                    <button class="btn btn-sm btn-warning" type="submit" th:text="${alt.label}">ώρα</button>
+                </form>
+            </div>
+        </th:block>
+        <div th:if="${#lists.isEmpty(check.alternatives)}">Δεν βρέθηκε ελεύθερη ώρα στις επόμενες 14 ημέρες.</div>
+    </div>
+
+    <th:block th:if="${doctors != null}">
+        <h2 class="h5">2. Ιατροί και ώρες υποδοχής</h2>
+        <p class="text-muted" th:if="${#maps.isEmpty(doctors)}">Δεν υπάρχουν ιατροί στο τμήμα.</p>
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6" th:each="entry : ${doctors}">
+                <div class="card card-body h-100">
+                    <strong th:text="${entry.key.fullName}"></strong>
+                    <span class="text-muted small" th:text="${entry.key.specialty.name}"></span>
+                    <div class="small mt-2" th:if="${#lists.isEmpty(entry.value)}">Δεν έχει ορίσει ώρες υποδοχής.</div>
+                    <div class="d-flex flex-wrap gap-1 mt-2">
+                        <span class="badge text-bg-light border" th:each="h : ${entry.value}"
+                              th:text="${#temporals.format(h.date, 'EEE dd/MM')} + ' ' + ${#temporals.format(h.startTime, 'HH:mm')} + '–' + ${#temporals.format(h.endTime, 'HH:mm')}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="h5">3. Στοιχεία ραντεβού</h2>
+        <form th:action="@{/appointments/check}" th:object="${form}" method="post" class="card card-body" novalidate>
+            <input type="hidden" th:field="*{departmentId}">
+            <div class="row">
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="serviceId">Υπηρεσία</label>
+                    <select class="form-select" id="serviceId" th:field="*{serviceId}">
+                        <option th:each="s : ${services}" th:value="${s.id}"
+                                th:text="${s.name} + ' · ' + ${#numbers.formatDecimal(s.price, 1, 2, 'COMMA')} + ' €' + (${s.equipment != null} ? ' (' + ${s.equipment.name} + ')' : '')"></option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="doctorId">Ιατρός</label>
+                    <select class="form-select" id="doctorId" th:field="*{doctorId}">
+                        <option th:each="entry : ${doctors}" th:value="${entry.key.id}" th:text="${entry.key.fullName}"></option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3" th:insert="~{fragments :: field('date', 'Ημερομηνία', 'date')}"></div>
+                <div class="col-6 col-md-3 mb-3">
+                    <label class="form-label" for="time">Ώρα</label>
+                    <input class="form-control" id="time" type="time" step="300" name="time"
+                           th:value="${#temporals.format(form.time, 'HH:mm')}" th:classappend="${#fields.hasErrors('time')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:errors="*{time}"></div>
+                </div>
+                <div class="col-12 col-md-6" th:insert="~{fragments :: field('reason', 'Αιτία επίσκεψης', 'text')}"></div>
+            </div>
+            <div><button class="btn btn-primary" type="submit">Έλεγχος διαθεσιμότητας</button></div>
+        </form>
+    </th:block>
+</section>
+</body>
+</html>

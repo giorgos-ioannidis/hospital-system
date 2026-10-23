@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Ιατρικοί φάκελοι</title></head>
+<body>
+<section class="row g-4">
+    <div class="col-12 col-lg-6">
+        <h1 class="h3">Οι ασθενείς μου</h1>
+        <p class="small text-muted">Νοσηλευόμενοι στο τμήμα σας και, για ιατρούς, ασθενείς με ραντεβού μαζί σας.</p>
+        <p class="text-muted" th:if="${#sets.isEmpty(mine)}">Δεν παρακολουθείτε ασθενείς αυτή τη στιγμή.</p>
+        <div class="list-group">
+            <a class="list-group-item list-group-item-action" th:each="p : ${mine}" th:href="@{/records/{id}(id=${p.id})}"
+               th:text="${p.fullName} + ' · ΑΜΚΑ ' + ${p.amka}"></a>
+        </div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <h2 class="h5">Αναζήτηση ασθενούς</h2>
+        <form th:action="@{/records}" method="get" class="d-flex gap-2 mb-3">
+            <label class="visually-hidden" for="q">ΑΜΚΑ ή επώνυμο</label>
+            <input class="form-control" id="q" name="q" th:value="${q}" placeholder="ΑΜΚΑ ή επώνυμο">
+            <button class="btn btn-primary" type="submit">Αναζήτηση</button>
+        </form>
+        <p class="small text-muted">Ο φάκελος ανοίγει μόνο αν παρακολουθείτε τον ασθενή. Κάθε απόπειρα καταγράφεται.</p>
+        <p class="text-muted" th:if="${q != null and #lists.isEmpty(results)}">Δεν βρέθηκε ασθενής.</p>
+        <div class="list-group">
+            <a class="list-group-item list-group-item-action" th:each="p : ${results}" th:href="@{/records/{id}(id=${p.id})}"
+               th:text="${p.fullName} + ' · ΑΜΚΑ ' + ${p.amka}"></a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

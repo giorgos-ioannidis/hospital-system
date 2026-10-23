@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Το πρόγραμμά μου</title></head>
+<body>
+<section>
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+        <h1 class="h3 mb-0">Το πρόγραμμά μου</h1>
+        <form th:action="@{/schedules/mine}" method="get" class="d-flex gap-2">
+            <label class="visually-hidden" for="month">Μήνας</label>
+            <input class="form-control" type="month" id="month" name="month" th:value="${month}">
+            <button class="btn btn-outline-primary" type="submit">Προβολή</button>
+            <a class="btn btn-outline-secondary" th:href="@{/export/schedule(month=${month})}">PDF</a>
+        </form>
+    </div>
+    <p class="text-muted" th:if="${#lists.isEmpty(assignments)}">Δεν υπάρχουν βάρδιες σε ενεργό πρόγραμμα αυτόν τον μήνα.</p>
+    <div class="table-responsive" th:unless="${#lists.isEmpty(assignments)}">
+        <table class="table table-stack table-hover">
+            <thead><tr><th>Ημέρα</th><th>Βάρδια</th><th>Ώρες</th><th>Τμήμα</th></tr></thead>
+            <tbody>
+            <tr th:each="a : ${assignments}">
+                <td data-label="Ημέρα" th:text="${#temporals.format(a.shift.date, 'EEEE dd/MM')}"></td>
+                <td data-label="Βάρδια" th:text="${a.shift.type.label}"></td>
+                <td data-label="Ώρες" th:text="${#temporals.format(a.shift.start, 'HH:mm')} + ' – ' + ${#temporals.format(a.shift.end, 'HH:mm')}"></td>
+                <td data-label="Τμήμα" th:text="${a.shift.schedule.department.name}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Αναπληρώσεις</title></head>
+<body>
+<section>
+    <h1 class="h3 mb-1">Αναπληρώσεις</h1>
+    <p class="text-muted">Ακάλυπτες βάρδιες στα ενεργά προγράμματα από σήμερα. Οι υποψήφιοι περνούν όλους τους σκληρούς κανόνες
+        και είναι ταξινομημένοι με τις λιγότερες ώρες του μήνα.</p>
+    <p class="alert alert-success" th:if="${#lists.isEmpty(uncovered)}">Όλες οι βάρδιες είναι καλυμμένες.</p>
+    <div class="table-responsive" th:unless="${#lists.isEmpty(uncovered)}">
+        <table class="table align-middle">
+            <thead><tr><th>Βάρδια</th><th>Τμήμα</th><th>Λείπουν</th><th>Αναπληρωτής</th></tr></thead>
+            <tbody>
+            <tr th:each="u : ${uncovered}">
+                <td th:text="${u.shift.label}"></td>
+                <td th:text="${u.shift.schedule.department.name}"></td>
+                <td th:text="${u.shift.missing}"></td>
+                <td>
+                    <span class="text-danger small" th:if="${#lists.isEmpty(u.candidates)}">Κανείς διαθέσιμος, ούτε σε άλλο τμήμα.</span>
+                    <form th:unless="${#lists.isEmpty(u.candidates)}" th:action="@{/absences/replacements}" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="shiftId" th:value="${u.shift.id}">
+                        <label class="visually-hidden" th:for="'staff-' + ${u.shift.id}">Αναπληρωτής</label>
+                        <select class="form-select form-select-sm" name="staffId" th:id="'staff-' + ${u.shift.id}">
+                            <option th:each="c : ${u.candidates}" th:value="${c.id}"
+                                    th:text="${c.fullName} + (${c.department.id != u.shift.schedule.department.id} ? ' · ' + ${c.department.name} : '')"></option>
+                        </select>
+                        <button class="btn btn-sm btn-primary" type="submit">Ανάθεση</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

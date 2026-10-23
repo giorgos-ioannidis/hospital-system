@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Πεδίο φόρμας με label και μήνυμα λάθους. Χρήση: th:replace="~{fragments :: field('email', 'Email', 'email')}" -->
+<div th:fragment="field(name, label, type)" class="mb-3">
+    <label class="form-label" th:for="${name}" th:text="${label}">Πεδίο</label>
+    <input class="form-control" th:id="${name}" th:type="${type}" th:field="*{__${name}__}"
+           th:classappend="${#fields.hasErrors(name)} ? 'is-invalid'">
+    <div class="invalid-feedback" th:if="${#fields.hasErrors(name)}" th:errors="*{__${name}__}"></div>
+</div>
+<!-- Σφάλματα που δεν αφορούν ένα πεδίο (π.χ. «το username υπάρχει ήδη»). -->
+<div th:fragment="globalErrors" class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}">
+    <p class="mb-0" th:each="e : ${#fields.globalErrors()}" th:text="${e}"></p>
+</div>
+<!-- UC-14: η κράτηση μεταφέρεται με κρυφά πεδία από το UI-11 στο UI-12 και στο UI-16 μέχρι την επιβεβαίωση. -->
+<th:block th:fragment="bookingHidden(f)">
+    <input type="hidden" name="departmentId" th:value="${f.departmentId}">
+    <input type="hidden" name="serviceId" th:value="${f.serviceId}">
+    <input type="hidden" name="doctorId" th:value="${f.doctorId}">
+    <input type="hidden" name="date" th:value="${f.date}">
+    <input type="hidden" name="time" th:value="${#temporals.format(f.time, 'HH:mm')}">
+    <input type="hidden" name="reason" th:value="${f.reason}">
+</th:block>
+<!-- Περίληψη ραντεβού (UI-12, UI-16). -->
+<dl th:fragment="bookingSummary(c, f)" class="row mb-0">
+    <dt class="col-sm-4">Ιατρός</dt><dd class="col-sm-8" th:text="${c.doctor.fullName} + ' · ' + ${c.doctor.specialty.name}"></dd>
+    <dt class="col-sm-4">Υπηρεσία</dt><dd class="col-sm-8" th:text="${c.service.name}"></dd>
+    <dt class="col-sm-4">Ημέρα και ώρα</dt>
+    <dd class="col-sm-8" th:text="${#temporals.format(c.slot.start, 'EEEE dd/MM/yyyy HH:mm')} + '–' + ${#temporals.format(c.slot.end, 'HH:mm')}"></dd>
+    <dt class="col-sm-4">Αίθουσα</dt><dd class="col-sm-8" th:text="${c.room.name} + ' · ' + ${c.room.department.name}"></dd>
+    <dt class="col-sm-4">Εξοπλισμός</dt><dd class="col-sm-8" th:text="${c.service.equipment != null} ? ${c.service.equipment.name} : '—'"></dd>
+    <dt class="col-sm-4">Κόστος</dt><dd class="col-sm-8" th:text="${#numbers.formatDecimal(c.service.price, 1, 2, 'COMMA')} + ' €'"></dd>
+    <dt class="col-sm-4">Αιτία</dt><dd class="col-sm-8" th:text="${f.reason != null and f.reason != ''} ? ${f.reason} : '—'"></dd>
+</dl>
+</body>
+</html>

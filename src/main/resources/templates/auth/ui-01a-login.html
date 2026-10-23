@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{auth/auth-layout :: auth(~{::title}, ~{::section})}">
+<head><title>Σύνδεση · Γενικό Νοσοκομείο</title></head>
+<body>
+<section>
+    <div class="d-lg-none mb-4">
+        <a class="brand" th:href="@{/}">
+            <span class="brand-mark" aria-hidden="true"><i class="bi bi-plus-lg"></i></span>
+            <span class="brand-name">Γενικό Νοσοκομείο<span class="brand-sub">Πληροφοριακό Σύστημα</span></span>
+        </a>
+    </div>
+    <h1 class="h3 mb-1">Σύνδεση</h1>
+    <p class="text-muted mb-4">Με τα στοιχεία του λογαριασμού σας.</p>
+
+    <div class="alert alert-danger d-flex gap-2" role="alert" th:if="${param.error}">
+        <i class="bi bi-exclamation-octagon" aria-hidden="true"></i><span>Λάθος όνομα χρήστη ή κωδικός.</span>
+    </div>
+    <div class="alert alert-danger d-flex gap-2" role="alert" th:if="${param.locked}">
+        <i class="bi bi-lock" aria-hidden="true"></i>
+        <span>Ο λογαριασμός κλειδώθηκε μετά από 3 αποτυχημένες προσπάθειες. Δοκιμάστε ξανά σε 15 λεπτά ή επικοινωνήστε με τον Προϊστάμενο.</span>
+    </div>
+    <div class="alert alert-danger d-flex gap-2" role="alert" th:if="${param.disabled}">
+        <i class="bi bi-person-slash" aria-hidden="true"></i><span>Ο λογαριασμός είναι ανενεργός. Επικοινωνήστε με τον Προϊστάμενο.</span>
+    </div>
+    <div class="alert alert-success d-flex gap-2" role="status" th:if="${param.logout}">
+        <i class="bi bi-check-circle" aria-hidden="true"></i><span>Αποσυνδεθήκατε.</span>
+    </div>
+
+    <form th:action="@{/login}" method="post" class="card">
+        <label for="username" class="form-label">Όνομα χρήστη</label>
+        <input id="username" name="username" class="form-control form-control-lg mb-3" required autofocus
+               autocomplete="username" autocapitalize="none" spellcheck="false">
+        <label for="password" class="form-label">Κωδικός</label>
+        <input id="password" name="password" type="password" class="form-control form-control-lg mb-4" required
+               autocomplete="current-password">
+        <button class="btn btn-primary btn-lg w-100" type="submit">Σύνδεση</button>
+    </form>
+    <p class="text-center mt-3 mb-0">Νέος ασθενής; <a th:href="@{/register}">Δημιουργία λογαριασμού</a></p>
+
+    <div class="demo-box" th:if="${demoMode}">
+        <strong class="d-block mb-1">Λογαριασμοί επίδειξης (μόνο στο τοπικό περιβάλλον)</strong>
+        <code>supervisor</code> · <code>doctor1</code> · <code>nurse1</code> · <code>patient1</code>,
+        κωδικός <code>demo1234</code>
+    </div>
+    <p class="small text-center mt-3 mb-0"><a class="text-muted" th:href="@{/privacy}">Προστασία προσωπικών δεδομένων</a></p>
+</section>
+</body>
+</html>

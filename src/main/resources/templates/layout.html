@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="page(title, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Πληροφοριακό Σύστημα Νοσοκομείου: βάρδιες, ραντεβού, φάκελοι, κλίνες.">
+    <meta name="theme-color" content="#0b7470">
+    <title th:replace="${title}">Νοσοκομείο</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<a class="skip-link" href="#main">Μετάβαση στο περιεχόμενο</a>
+
+<header class="app-header" sec:authorize="isAuthenticated()">
+    <nav class="navbar navbar-expand-xl" aria-label="Κύριο μενού">
+        <div class="container-fluid container-app">
+            <a class="brand" th:href="@{/}">
+                <span class="brand-mark" aria-hidden="true"><i class="bi bi-plus-lg"></i></span>
+                <span class="brand-name">Γενικό Νοσοκομείο<span class="brand-sub">Πληροφοριακό Σύστημα</span></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"
+                    aria-controls="nav" aria-expanded="false" aria-label="Άνοιγμα μενού">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav me-auto gap-xl-1">
+                    <li th:replace="~{layout :: navLink('/', 'bi-house', 'Αρχική', '/home')}"></li>
+                    <th:block sec:authorize="hasRole('SUPERVISOR')">
+                        <li th:replace="~{layout :: navLink('/schedules', 'bi-calendar3', 'Προγράμματα', '/schedules')}"></li>
+                        <li th:replace="~{layout :: navLink('/leave/pending', 'bi-envelope-paper', 'Άδειες', '/leave')}"></li>
+                        <li th:replace="~{layout :: navLink('/absences/replacements', 'bi-arrow-left-right', 'Αναπληρώσεις', '/absences')}"></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                               th:classappend="${#strings.startsWith(path, '/beds') or #strings.startsWith(path, '/overtime') or #strings.startsWith(path, '/staff')} ? 'active'">
+                                <i class="bi bi-building" aria-hidden="true"></i>Διοίκηση</a>
+                            <ul class="dropdown-menu">
+                                <li th:replace="~{layout :: dropLink('/beds', 'bi-hospital', 'Κατανομή κλινών')}"></li>
+                                <li th:replace="~{layout :: dropLink('/beds/occupancy', 'bi-bar-chart', 'Πληρότητα θαλάμων')}"></li>
+                                <li th:replace="~{layout :: dropLink('/overtime', 'bi-clock-history', 'Υπερωρίες')}"></li>
+                                <li th:replace="~{layout :: dropLink('/staff', 'bi-people', 'Προσωπικό')}"></li>
+                            </ul>
+                        </li>
+                    </th:block>
+                    <th:block sec:authorize="hasAnyRole('DOCTOR', 'NURSE')">
+                        <li th:replace="~{layout :: navLink('/schedules/mine', 'bi-calendar3', 'Το πρόγραμμά μου', '/schedules')}"></li>
+                        <li th:replace="~{layout :: navLink('/records', 'bi-folder2-open', 'Φάκελοι', '/records')}"></li>
+                    </th:block>
+                    <th:block sec:authorize="hasRole('DOCTOR')">
+                        <li th:replace="~{layout :: navLink('/appointments/doctor', 'bi-calendar-check', 'Ραντεβού', '/appointments')}"></li>
+                        <li th:replace="~{layout :: navLink('/exams', 'bi-clipboard2-pulse', 'Εξετάσεις', '/exams')}"></li>
+                    </th:block>
+                    <li class="nav-item dropdown" sec:authorize="hasAnyRole('DOCTOR', 'NURSE')">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                           th:classappend="${#strings.startsWith(path, '/leave') or #strings.startsWith(path, '/absences') or #strings.startsWith(path, '/office-hours')} ? 'active'">
+                            <i class="bi bi-pencil-square" aria-hidden="true"></i>Αιτήσεις</a>
+                        <ul class="dropdown-menu">
+                            <li th:replace="~{layout :: dropLink('/leave', 'bi-sun', 'Αίτηση άδειας')}"></li>
+                            <li th:replace="~{layout :: dropLink('/absences', 'bi-thermometer-half', 'Δήλωση απουσίας')}"></li>
+                            <th:block sec:authorize="hasRole('DOCTOR')">
+                                <li th:replace="~{layout :: dropLink('/office-hours', 'bi-door-open', 'Ώρες υποδοχής')}"></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                    <th:block sec:authorize="hasRole('PATIENT')">
+                        <li th:replace="~{layout :: navLink('/appointments/new', 'bi-calendar-plus', 'Νέο ραντεβού', '/appointments/new')}"></li>
+                        <li th:replace="~{layout :: navLink('/appointments/mine', 'bi-calendar-check', 'Τα ραντεβού μου', '/appointments/mine')}"></li>
+                        <li th:replace="~{layout :: navLink('/records/mine', 'bi-folder2-open', 'Ο φάκελός μου', '/records')}"></li>
+                        <li th:replace="~{layout :: navLink('/exams/mine', 'bi-clipboard2-pulse', 'Αποτελέσματα', '/exams')}"></li>
+                    </th:block>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                           th:classappend="${#strings.startsWith(path, '/info')} ? 'active'">
+                            <i class="bi bi-signpost-split" aria-hidden="true"></i>Νοσοκομείο</a>
+                        <ul class="dropdown-menu">
+                            <li th:replace="~{layout :: dropLink('/info/map', 'bi-map', 'Χάρτης')}"></li>
+                            <li th:replace="~{layout :: dropLink('/info/directory', 'bi-journal-medical', 'Ιατροί και υπηρεσίες')}"></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                           th:classappend="${#strings.startsWith(path, '/profile') or #strings.startsWith(path, '/notifications')} ? 'active'">
+                            <span class="user-chip" aria-hidden="true"
+                                  th:text="${currentUser != null} ? ${#strings.substring(currentUser.firstName, 0, 1) + #strings.substring(currentUser.lastName, 0, 1)} : '?'">ΧΡ</span>
+                            <span class="d-xl-none d-xxl-inline text-truncate" style="max-width: 11rem"
+                                  th:text="${currentUser != null} ? ${currentUser.fullName} : ''">Όνομα</span>
+                            <span class="visually-hidden">Λογαριασμός</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><span class="dropdown-item-text small text-muted"
+                                      th:text="${currentUser != null} ? ${currentUser.fullName} + ' · ' + ${currentUser.username} : ''"></span></li>
+                            <li th:replace="~{layout :: dropLink('/profile', 'bi-person', 'Προφίλ')}"></li>
+                            <li th:replace="~{layout :: dropLink('/notifications', 'bi-bell', 'Ειδοποιήσεις')}"></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post">
+                                    <button class="dropdown-item" type="submit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>Αποσύνδεση</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main id="main" class="app-main" tabindex="-1">
+    <div class="container-fluid container-app">
+        <div class="alert alert-success d-flex gap-2 align-items-start" role="status" th:if="${success}">
+            <i class="bi bi-check-circle" aria-hidden="true"></i><span th:text="${success}"></span>
+        </div>
+        <div class="alert alert-danger d-flex gap-2 align-items-start" role="alert" th:if="${error != null and status == null}">
+            <i class="bi bi-exclamation-octagon" aria-hidden="true"></i><span th:text="${error}"></span>
+        </div>
+        <div th:insert="${content}"></div>
+    </div>
+</main>
+
+<footer class="app-footer" sec:authorize="isAuthenticated()">
+    <div class="container-fluid container-app d-flex flex-wrap justify-content-between gap-2">
+        <span>Πληροφοριακό Σύστημα Νοσοκομείου · Ομάδα 6 · Μηχανική Λογισμικού, ΔΙΠΑΕ</span>
+        <a th:href="@{/privacy}">Προστασία προσωπικών δεδομένων</a>
+    </div>
+</footer>
+
+<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+<!-- Fragments του μενού. Το prefix ορίζει πότε ο σύνδεσμος φαίνεται ενεργός. -->
+<th:block th:remove="all">
+    <li th:fragment="navLink(href, icon, label, prefix)" class="nav-item"
+        th:with="on=${prefix == '/home' ? path == '/' : #strings.startsWith(path, prefix)}">
+        <a class="nav-link" th:href="@{${href}}" th:classappend="${on} ? 'active'" th:attr="aria-current=${on} ? 'page' : null">
+            <i class="bi" th:classappend="${icon}" aria-hidden="true"></i><span th:text="${label}">Σύνδεσμος</span>
+        </a>
+    </li>
+    <li th:fragment="dropLink(href, icon, label)">
+        <a class="dropdown-item" th:href="@{${href}}" th:classappend="${path == href} ? 'active'"
+           th:attr="aria-current=${path == href} ? 'page' : null">
+            <i class="bi" th:classappend="${icon}" aria-hidden="true"></i><span th:text="${label}">Σύνδεσμος</span>
+        </a>
+    </li>
+</th:block>
+</body>
+</html>

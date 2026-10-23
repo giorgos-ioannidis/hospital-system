@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Ιατροί και υπηρεσίες</title></head>
+<body>
+<section>
+    <h1 class="h3 mb-3">Ιατροί και υπηρεσίες</h1>
+    <div class="card mb-3" th:each="d : ${departments}">
+        <div class="card-header d-flex justify-content-between">
+            <strong th:text="${d.department.name}"></strong>
+            <span class="text-muted small" th:text="${d.department.floor == 0} ? 'Ισόγειο' : ${d.department.floor} + 'ος όροφος'"></span>
+        </div>
+        <div class="card-body row g-3">
+            <div class="col-12 col-md-7">
+                <h2 class="h6">Ιατροί</h2>
+                <p class="small text-muted" th:if="${#lists.isEmpty(d.doctors)}">—</p>
+                <ul class="list-unstyled small mb-0">
+                    <li th:each="doc : ${d.doctors}">
+                        <strong th:text="${doc.fullName}"></strong>
+                        <span class="text-muted" th:text="' · ' + ${doc.specialty.name} + (${doc.phone} ? ' · ' + ${doc.phone} : '') + ' · ' + ${doc.email}"></span>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-12 col-md-5">
+                <h2 class="h6">Υπηρεσίες</h2>
+                <ul class="list-unstyled small mb-0">
+                    <li th:each="s : ${d.services}"
+                        th:text="${s.name} + ' · ' + ${#numbers.formatDecimal(s.price, 1, 2, 'COMMA')} + ' €'"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

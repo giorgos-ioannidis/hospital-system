@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Υπερωρίες</title></head>
+<body>
+<section>
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+        <h1 class="h3 mb-0">Υπερωρίες</h1>
+        <form th:action="@{/overtime}" method="get" class="d-flex gap-2">
+            <label class="visually-hidden" for="departmentId">Τμήμα</label>
+            <select class="form-select" id="departmentId" name="departmentId">
+                <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}" th:selected="${d.id == departmentId}"></option>
+            </select>
+            <label class="visually-hidden" for="month">Μήνας</label>
+            <input class="form-control" type="month" id="month" name="month" th:value="${month}">
+            <button class="btn btn-outline-primary" type="submit">Προβολή</button>
+        </form>
+    </div>
+    <p class="small text-muted">Υπολογίζονται από το ενεργό πρόγραμμα: ώρες πάνω από τις 40 σε κάθε εβδομάδα (Δευτέρα–Κυριακή).</p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead><tr><th>Μέλος</th><th>Ειδικότητα</th><th>Ώρες μήνα</th><th>Υπερωρίες</th><th>Απόφαση</th><th></th></tr></thead>
+            <tbody>
+            <tr th:each="r : ${rows}">
+                <td th:text="${r.staff.fullName}"></td>
+                <td th:text="${r.staff.specialty.name}"></td>
+                <td th:text="${r.scheduledHours}"></td>
+                <td th:text="${r.overtimeHours}" th:classappend="${r.overtimeHours > 0} ? 'fw-bold'"></td>
+                <td>
+                    <span th:if="${r.decision == null}" class="text-muted">—</span>
+                    <span th:if="${r.decision != null}"
+                          th:text="(${r.decision.status.name() == 'APPROVED'} ? 'Εγκρίθηκαν ' : 'Απορρίφθηκαν ') + ${r.decision.hours} + ' ώρες'"></span>
+                    <span class="badge text-bg-warning" th:if="${r.outdated}">άλλαξε το πρόγραμμα</span>
+                </td>
+                <td class="d-flex gap-1">
+                    <span class="text-muted small" th:if="${r.overtimeHours == 0 and r.decision == null}">Καμία υπερωρία</span>
+                    <form th:action="@{/overtime/decide}" method="post" th:each="choice : ${ {true, false} }"
+                          th:unless="${r.overtimeHours == 0 and r.decision == null}">
+                        <input type="hidden" name="staffId" th:value="${r.staff.id}">
+                        <input type="hidden" name="departmentId" th:value="${departmentId}">
+                        <input type="hidden" name="month" th:value="${month}">
+                        <input type="hidden" name="approve" th:value="${choice}">
+                        <button class="btn btn-sm" type="submit" th:classappend="${choice} ? 'btn-outline-success' : 'btn-outline-danger'"
+                                th:text="${choice} ? 'Έγκριση' : 'Απόρριψη'"></button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Προεπισκόπηση ραντεβού</title></head>
+<body>
+<section class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <h1 class="h3">Προεπισκόπηση ραντεβού</h1>
+        <p class="text-success">Η ώρα είναι διαθέσιμη: ιατρός, αίθουσα και εξοπλισμός είναι ελεύθεροι.</p>
+        <div class="card card-body mb-3" th:insert="~{fragments :: bookingSummary(${check}, ${form})}"></div>
+        <div class="d-flex flex-wrap gap-2">
+            <form th:action="@{/appointments}" method="post">
+                <th:block th:replace="~{fragments :: bookingHidden(${form})}"></th:block>
+                <button class="btn btn-primary" type="submit">Επιβεβαίωση</button>
+            </form>
+            <form th:action="@{/appointments/payment}" method="post">
+                <th:block th:replace="~{fragments :: bookingHidden(${form})}"></th:block>
+                <button class="btn btn-outline-primary" type="submit">Πληρωμή τώρα</button>
+            </form>
+            <a class="btn btn-outline-secondary" th:href="@{/appointments/new(departmentId=${form.departmentId})}">Ακύρωση</a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

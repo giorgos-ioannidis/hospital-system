@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Εξετάσεις</title></head>
+<body>
+<section class="row g-4">
+    <div class="col-12 col-lg-4">
+        <h1 class="h3">Παραγγελία εξέτασης</h1>
+        <form th:action="@{/exams}" method="post" class="card card-body">
+            <label class="form-label" for="patientId">Ασθενής</label>
+            <select class="form-select mb-2" id="patientId" name="patientId" required>
+                <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName} + ' · ' + ${p.amka}"></option>
+            </select>
+            <label class="form-label" for="serviceId">Εξέταση</label>
+            <select class="form-select mb-2" id="serviceId" name="serviceId">
+                <option th:each="s : ${catalog}" th:value="${s.id}" th:text="${s.name} + ' (' + ${s.department.name} + ')'"></option>
+            </select>
+            <label class="form-label" for="notes">Σημειώσεις</label>
+            <input class="form-control mb-2" id="notes" name="notes" maxlength="500">
+            <p class="small text-muted">Η ίδια εξέταση δεν ξαναπαραγγέλνεται για τον ίδιο ασθενή μέσα σε 7 ημέρες.</p>
+            <button class="btn btn-primary" type="submit" th:disabled="${#sets.isEmpty(patients)}">Παραγγελία</button>
+        </form>
+    </div>
+    <div class="col-12 col-lg-8">
+        <h2 class="h5">Οι παραγγελίες μου</h2>
+        <p class="text-muted" th:if="${#lists.isEmpty(orders)}">Καμία παραγγελία.</p>
+        <div class="card mb-2" th:each="o : ${orders}">
+            <div class="card-body py-2">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                    <div>
+                        <strong th:text="${o.exam.name}"></strong>
+                        <span class="text-muted" th:text="' · ' + ${o.patient.fullName} + ' · ' + ${#temporals.format(o.orderedAt, 'dd/MM HH:mm')}"></span>
+                        <span class="badge text-bg-light border" th:text="${o.status.label}"></span>
+                    </div>
+                    <a class="small" th:href="@{/export/exam/{id}(id=${o.id})}">PDF</a>
+                </div>
+                <div class="small" th:if="${o.resultText}" th:text="${o.resultText}"></div>
+                <form th:if="${o.status.name() == 'ORDERED'}" th:action="@{/exams/{id}/result(id=${o.id})}" method="post" class="d-flex gap-2 mt-2">
+                    <label class="visually-hidden" th:for="'res-' + ${o.id}">Αποτέλεσμα</label>
+                    <input class="form-control form-control-sm" name="text" th:id="'res-' + ${o.id}" placeholder="Αποτέλεσμα" maxlength="4000" required>
+                    <button class="btn btn-sm btn-primary" type="submit">Καταχώριση</button>
+                </form>
+                <form th:if="${o.status.name() == 'ORDERED'}" th:action="@{/exams/{id}/cancel(id=${o.id})}" method="post" class="mt-1">
+                    <button class="btn btn-sm btn-link text-danger p-0" type="submit">Ακύρωση</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

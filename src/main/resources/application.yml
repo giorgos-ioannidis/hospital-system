@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: hospital-system
+  profiles:
+    default: dev
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  thymeleaf:
+    cache: false
+  mvc:
+    format:
+      date: iso
+  messages:
+    encoding: UTF-8
+  web:
+    locale: el
+    locale-resolver: fixed
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
