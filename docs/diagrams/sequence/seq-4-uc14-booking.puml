@@ -59,7 +59,7 @@ end
 
 C -> S : [9] book(username, form)
 activate S
-S -> DB : lockDoctor(id), lockEquipment(id)\n(SELECT … FOR UPDATE)
+S -> DB : lockDoctor(id), equipment.lockById(id)\n(SELECT … FOR UPDATE)
 S -> S : check(...) ξανά, με κλειδωμένους πόρους
 S -> DB : save(new Appointment): δεσμεύει ιατρό, αίθουσα, εξοπλισμό
 opt επιλέχθηκε τρόπος πληρωμής
