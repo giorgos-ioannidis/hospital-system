@@ -31,14 +31,14 @@ java -jar ~/Downloads/MetricsCalculator.jar
 
 | Μετρική | Τιμή | Στόχος NFR-07 | |
 |---|---|---|---|
-| Αρχεία / μέθοδοι | 170 / 707 | — | |
-| LoC (SIZE1, άθροισμα) | 3.402 | — | |
+| Αρχεία / μέθοδοι | 172 / 727 | — | |
+| LoC (SIZE1, άθροισμα) | 3.506 | — | |
 | CC ανά μέθοδο | μέσος όρος ανά κλάση ≤ 5 (`UserFactory`)· μέγιστο σε μία μέθοδο = 8 (CK) | ≤ 10 | ✅ |
 | WMPC1 ανά κλάση | MetricsCalculator: WMC ≤ 23 (`Appointment`)· CK (άθροισμα CC): ≤ 30 | ≤ 30 | ✅ |
 | DIT, μέγιστο | 2 (κανόνες: `Rule` → `HardRule` → `SpecialtyRule`) | — | |
 | NOCC, μέγιστο | 6 (`HardRule`), 3 (`User`) | — | |
 | CBO, μέγιστο | 25 (`AppointmentService`) | — | |
-| RFC, μέγιστο | 97 (`OfficeHoursService`) | — | |
+| RFC, μέγιστο | 110 (`AppointmentService`) | — | |
 | FanIn, μέγιστο | 31 (`HealthStaff`) | — | |
 | LCOM1 = 0 | domain 19/51, scheduling 6/24, booking 0/4, service 3/22 | = 0 στο πεδίο | ❌ (βλ. παρακάτω) |
 
