@@ -3,7 +3,10 @@ package gr.ihu.hospital.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
@@ -75,6 +78,31 @@ public class AppointmentManagementService {
             events.publishEvent(new AppointmentEvent(appointment, AppointmentEvent.Type.RESCHEDULED));
         }
         return check;
+    }
+
+    /** UC-15: το πλέγμα ελεύθερων ωρών για αλλαγή ραντεβού (ίδιος ιατρός και υπηρεσία). */
+    @PreAuthorize("hasRole('PATIENT')")
+    @Transactional(readOnly = true)
+    public List<DaySlots> rescheduleOptions(String username, Long id) {
+        Appointment appointment = ownedByPatient(username, id);
+        return booking.slotsFor(appointment.getDoctor(), appointment.getService(), appointment);
+    }
+
+    @PreAuthorize("hasRole('PATIENT')")
+    @Transactional(readOnly = true)
+    public Appointment appointment(String username, Long id) {
+        return ownedByPatient(username, id);
+    }
+
+    /** UI-15: τα ραντεβού του ιατρού ομαδοποιημένα ανά ημέρα. */
+    @PreAuthorize("hasRole('DOCTOR')")
+    @Transactional(readOnly = true)
+    public Map<LocalDate, List<Appointment>> doctorAgenda(String username) {
+        Map<LocalDate, List<Appointment>> byDay = new LinkedHashMap<>();
+        for (Appointment appointment : doctorAppointments(username)) {
+            byDay.computeIfAbsent(appointment.getStart().toLocalDate(), d -> new ArrayList<>()).add(appointment);
+        }
+        return byDay;
     }
 
     /** UC-15 (ιατρός): τα ραντεβού του από την προηγούμενη εβδομάδα και μετά. */

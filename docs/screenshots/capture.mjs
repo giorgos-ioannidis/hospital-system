@@ -99,6 +99,19 @@ async function submit(formSelector, values = {}) {
   await settle();
 }
 
+/** Πατά ένα κουμπί ή σύνδεσμο (όπως ο χρήστης) και περιμένει τη νέα σελίδα. */
+async function click(selector, force = false) {
+  const loaded = nextLoad();
+  await evaluate(`(() => {
+    const el = document.querySelector(${JSON.stringify(selector)});
+    if (!el) throw new Error('Δεν βρέθηκε ' + ${JSON.stringify(selector)} + ' στο ' + location.pathname);
+    if (${force}) el.disabled = false;
+    el.click();
+  })()`);
+  await loaded;
+  await settle();
+}
+
 async function login(username) {
   await send('Network.clearBrowserCookies');
   await go('/login');
@@ -193,16 +206,23 @@ await shot('ui-07-pending');
 // Ασθενής: κράτηση (UC-14 → UC-13 → UC-16), τα ραντεβού μου (UC-15)
 await login('patient2');
 await go('/appointments/new?departmentId=1');
+await shot('ui-11-book-step2');
+const grid = '/appointments/new?departmentId=1&serviceId=2&doctorId=2';
+const slot = `button[name="slot"][value="${BOOKING_DAY}T10:30"]`;
+await go(grid);
 await both('ui-11-book');
-const booking = { departmentId: 1, serviceId: 2, doctorId: 2, date: BOOKING_DAY, time: '10:30', reason: 'Αίσθημα παλμών' };
-await submit('form[action$="/appointments/check"]', booking);
+await evaluate(`document.getElementById('reason').value = 'Αίσθημα παλμών'`);
+await click(slot);
 await both('ui-12-preview');
 await submit('form[action$="/appointments/payment"]');
 await shot('ui-16-payment');
 await submit('form[action$="/appointments"]', { paymentMethod: 'CARD' });
 await both('ui-14-mine');
-await go('/appointments/new?departmentId=1');
-await submit('form[action$="/appointments/check"]', booking);
+await click('a[href*="/reschedule"]');
+await both('ui-14b-reschedule');
+// Ροή 7a1: η ίδια ώρα (πλέον κλεισμένη) στέλνεται ξανά → μήνυμα και 3 εναλλακτικές
+await go(grid);
+await click(slot, true);
 await shot('ui-11-book-alternatives');
 await go('/');
 await both('ui-01b-home-patient');

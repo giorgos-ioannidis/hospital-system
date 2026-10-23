@@ -19,7 +19,7 @@
                     <form th:action="@{/leave/{id}/approve(id=${l.id})}" method="post">
                         <button class="btn btn-success btn-sm" type="submit">Έγκριση</button>
                     </form>
-                    <form th:action="@{/leave/{id}/reject(id=${l.id})}" method="post">
+                    <form th:action="@{/leave/{id}/reject(id=${l.id})}" method="post" onsubmit="return confirm('Απόρριψη της αίτησης;');">
                         <button class="btn btn-outline-danger btn-sm" type="submit">Απόρριψη</button>
                     </form>
                 </div>

@@ -866,3 +866,171 @@ a.stat:hover {
 .page-actions .btn {
     white-space: nowrap;
 }
+
+/* ---------- Πλέγμα ωρών (UI-11, UI-14b) ---------- */
+
+.slot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+    gap: 0.75rem;
+}
+
+.slot-day {
+    border: 1px solid var(--hs-line);
+    border-radius: var(--hs-radius);
+    background: var(--hs-surface);
+    padding: 0.75rem;
+}
+
+.slot-day-head {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.6rem;
+    line-height: 1.2;
+}
+
+.slot-day-head strong {
+    text-transform: capitalize;
+}
+
+.slot-day-head span {
+    color: var(--hs-muted);
+    font-size: 0.85rem;
+}
+
+.slot-day-head small {
+    color: var(--hs-success);
+    font-weight: 600;
+    margin-top: 0.15rem;
+}
+
+.slot-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem;
+}
+
+.slot {
+    border: 1px solid rgba(11, 116, 112, 0.45);
+    background: var(--hs-surface);
+    color: var(--hs-accent-ink);
+    font-weight: 600;
+    font-size: 0.88rem;
+    font-variant-numeric: tabular-nums;
+    border-radius: 7px;
+    padding: 0.4rem 0;
+    transition: background-color 160ms var(--hs-ease), color 160ms var(--hs-ease), transform 120ms var(--hs-ease);
+}
+
+.slot:hover:not(:disabled) {
+    background: var(--hs-accent);
+    color: #fff;
+}
+
+.slot:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.slot:disabled,
+.slot[disabled] {
+    border-color: var(--hs-line);
+    background: var(--hs-line-soft);
+    color: #9fb0b5;
+    text-decoration: line-through;
+    cursor: not-allowed;
+}
+
+.slot-sample {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    margin-right: 0.25rem;
+    font-size: 0.75rem;
+}
+
+.slot-legend {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Κάρτες επιλογής (υπηρεσία, ιατρός) */
+.choice {
+    position: relative;
+    display: block;
+    height: 100%;
+    cursor: pointer;
+}
+
+.choice input {
+    position: absolute;
+    opacity: 0;
+}
+
+.choice .card {
+    height: 100%;
+    padding: 0.9rem 1rem;
+    transition: border-color 160ms var(--hs-ease), box-shadow 160ms var(--hs-ease);
+}
+
+.choice:hover .card {
+    border-color: rgba(11, 116, 112, 0.45);
+}
+
+.choice input:checked + .card {
+    border-color: var(--hs-accent);
+    box-shadow: 0 0 0 3px var(--bs-focus-ring-color);
+}
+
+.choice input:focus-visible + .card {
+    outline: 3px solid rgba(11, 116, 112, 0.45);
+    outline-offset: 2px;
+}
+
+.step-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1.75rem 0 0.75rem;
+}
+
+.step-num {
+    display: inline-grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--hs-accent);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+/* Ημερολόγιο: εικονίδιο αλλαγής στο κελί */
+.cell-edit {
+    position: relative;
+}
+
+.cell-link {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.3rem;
+    color: #9fb0b5;
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 140ms var(--hs-ease);
+}
+
+.cell-edit:hover .cell-link,
+.cell-link:focus {
+    opacity: 1;
+    color: var(--hs-accent);
+}
+
+@media (hover: none) {
+    .cell-link {
+        opacity: 1;
+    }
+}
+
+.agenda-day-today {
+    border-left: 4px solid var(--hs-accent);
+}

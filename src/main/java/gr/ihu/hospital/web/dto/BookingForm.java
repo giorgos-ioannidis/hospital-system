@@ -33,6 +33,13 @@ public class BookingForm {
 
     private PaymentMethod paymentMethod;
 
+    /** Από το πλέγμα ωρών: «yyyy-MM-ddTHH:mm» → ημερομηνία και ώρα. */
+    public void setSlot(String slot) {
+        java.time.LocalDateTime start = java.time.LocalDateTime.parse(slot);
+        this.date = start.toLocalDate();
+        this.time = start.toLocalTime();
+    }
+
     public Long getDepartmentId() {
         return departmentId;
     }

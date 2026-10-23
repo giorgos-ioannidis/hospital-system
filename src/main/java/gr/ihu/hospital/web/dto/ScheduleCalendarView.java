@@ -36,6 +36,11 @@ public final class ScheduleCalendarView {
         return shift.getSpecialty().getId() + ":" + shift.getType().name();
     }
 
+    /** Τα κλειδιά των στηλών με τη σειρά τους (για να ξέρει κάθε κελί ποια βάρδια είναι). */
+    public List<String> getColumnKeys() {
+        return new ArrayList<>(columns.keySet());
+    }
+
     public Map<String, String> getColumns() {
         return columns;
     }

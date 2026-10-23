@@ -21,6 +21,7 @@ ui-09-my-schedule.png
 mobile/ui-09-my-schedule.png
 ui-01b-home-nurse.png
 ui-07-pending.png
+ui-11-book-step2.png
 ui-11-book.png
 mobile/ui-11-book.png
 ui-12-preview.png
@@ -28,6 +29,8 @@ mobile/ui-12-preview.png
 ui-16-payment.png
 ui-14-mine.png
 mobile/ui-14-mine.png
+ui-14b-reschedule.png
+mobile/ui-14b-reschedule.png
 ui-11-book-alternatives.png
 ui-01b-home-patient.png
 mobile/ui-01b-home-patient.png

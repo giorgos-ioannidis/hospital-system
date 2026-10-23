@@ -54,7 +54,7 @@ class Increment2FlowTest {
     @Test
     void officeHoursBookingNotificationsAndCancellation() {
         loginAs("doctor7", "DOCTOR");
-        OfficeHours hours = officeHours.define("doctor7", officeHoursForm(ROOM_K1, 9, 11));
+        OfficeHours hours = officeHours.define("doctor7", officeHoursForm(ROOM_K1, 9, 11)).getCreated().get(0);
         loginAs("doctor4", "DOCTOR");
         assertThatThrownBy(() -> officeHours.define("doctor4", officeHoursForm(ROOM_K1, 10, 12)))
             .as("ίδια αίθουσα, επικάλυψη").hasMessageContaining("Η αίθουσα Ιατρείο Κ1 είναι κρατημένη");
@@ -88,9 +88,9 @@ class Increment2FlowTest {
     @Test
     void sharedEquipmentIsNotDoubleBooked() {
         loginAs("doctor7", "DOCTOR");
-        OfficeHours k1 = officeHours.define("doctor7", officeHoursForm(ROOM_K1, 9, 11));
+        OfficeHours k1 = officeHours.define("doctor7", officeHoursForm(ROOM_K1, 9, 11)).getCreated().get(0);
         loginAs("doctor4", "DOCTOR");
-        OfficeHours k2 = officeHours.define("doctor4", officeHoursForm(2L, 9, 11));
+        OfficeHours k2 = officeHours.define("doctor4", officeHoursForm(2L, 9, 11)).getCreated().get(0);
 
         loginAs("patient1", "PATIENT");
         appointments.book("patient1", booking(k1.getDoctor().getId(), ECHO, 10, 0));
@@ -101,10 +101,27 @@ class Increment2FlowTest {
             .as("χωρίς εξοπλισμό, άλλος ιατρός/αίθουσα: ελεύθερο").isTrue();
     }
 
+    /** UC-11: επανάληψη ανά εβδομάδα· η εβδομάδα με σύγκρουση απορρίπτεται, οι υπόλοιπες καταχωρούνται. */
+    @Test
+    void weeklyOfficeHoursSkipConflictingWeeks() {
+        loginAs("doctor4", "DOCTOR");
+        OfficeHoursForm taken = officeHoursForm(ROOM_K1, 9, 11);
+        taken.setDate(DAY.plusWeeks(1));
+        officeHours.define("doctor4", taken);
+        loginAs("doctor7", "DOCTOR");
+        OfficeHoursForm weekly = officeHoursForm(ROOM_K1, 10, 12);
+        weekly.setWeeks(3);
+
+        OfficeHoursResult result = officeHours.define("doctor7", weekly);
+
+        assertThat(result.getCreated()).extracting(OfficeHours::getDate).containsExactly(DAY, DAY.plusWeeks(2));
+        assertThat(result.getRejected()).containsOnlyKeys(DAY.plusWeeks(1));
+    }
+
     @Test
     void deletingBookedOfficeHoursCancelsAppointments() {
         loginAs("doctor7", "DOCTOR");
-        OfficeHours hours = officeHours.define("doctor7", officeHoursForm(ROOM_K1, 9, 11));
+        OfficeHours hours = officeHours.define("doctor7", officeHoursForm(ROOM_K1, 9, 11)).getCreated().get(0);
         loginAs("patient1", "PATIENT");
         Appointment booked = appointments.book("patient1", booking(hours.getDoctor().getId(), VISIT, 9, 0));
 

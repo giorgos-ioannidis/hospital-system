@@ -54,8 +54,12 @@
             <tbody>
             <tr th:each="row : ${calendar.rows}">
                 <th th:classappend="${row.weekend} ? 'table-secondary'" th:text="${#temporals.format(row.date, 'EEE dd/MM')}"></th>
-                <td th:each="shift : ${row.cells}" th:classappend="${shift != null and shift.understaffed} ? 'table-danger'">
+                <td th:each="shift, it : ${row.cells}" th:classappend="${shift != null and shift.understaffed} ? 'table-danger'"
+                    class="cell-edit">
                     <th:block th:if="${shift != null}">
+                        <a class="cell-link" th:href="@{/schedules/{id}(id=${schedule.id}, date=${row.date}, slot=${calendar.columnKeys[it.index]})} + '#change'"
+                           th:attr="aria-label='Αλλαγή: ' + ${#temporals.format(row.date, 'dd/MM')} + ' ' + ${calendar.columns[calendar.columnKeys[it.index]]}"
+                           title="Αλλαγή αυτής της βάρδιας"><i class="bi bi-pencil" aria-hidden="true"></i></a>
                         <span class="d-block" th:each="a : ${shift.assignments}" th:text="${a.staff.lastName}"></span>
                         <span class="text-danger fw-bold" th:if="${shift.understaffed}" th:text="'λείπουν ' + ${shift.missing}"></span>
                     </th:block>
@@ -65,8 +69,8 @@
         </table>
     </div>
 
-    <h2 class="h5">Χειροκίνητη αλλαγή</h2>
-    <p class="small text-muted">Η αλλαγή ελέγχεται με τους ίδιους κανόνες με τον αλγόριθμο. Αν παραβιάζει κάποιον, θα σας ζητηθεί επιβεβαίωση.</p>
+    <h2 class="h5" id="change">Χειροκίνητη αλλαγή</h2>
+    <p class="small text-muted">Πατήστε <i class="bi bi-pencil" aria-hidden="true"></i> σε ένα κελί για να συμπληρωθούν ημέρα και βάρδια. Η αλλαγή ελέγχεται με τους ίδιους κανόνες με τον αλγόριθμο. Αν παραβιάζει κάποιον, θα σας ζητηθεί επιβεβαίωση.</p>
     <form th:action="@{/schedules/{id}/changes(id=${schedule.id})}" th:object="${change}" method="post"
           class="row g-2 align-items-end card card-body flex-row">
         <div class="col-12 col-md-2">

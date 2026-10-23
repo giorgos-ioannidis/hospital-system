@@ -32,5 +32,36 @@
     <dt class="col-sm-4">Κόστος</dt><dd class="col-sm-8" th:text="${#numbers.formatDecimal(c.service.price, 1, 2, 'COMMA')} + ' €'"></dd>
     <dt class="col-sm-4">Αιτία</dt><dd class="col-sm-8" th:text="${f.reason != null and f.reason != ''} ? ${f.reason} : '—'"></dd>
 </dl>
+<!--
+  Πλέγμα ωρών (UI-11, UI-14b). Μπαίνει μέσα σε <form method="post">: κάθε ελεύθερη ώρα είναι κουμπί submit
+  με name="slot" και τιμή «yyyy-MM-ddTHH:mm». Οι κλεισμένες ώρες φαίνονται απενεργοποιημένες.
+-->
+<div th:fragment="slotGrid(days)">
+    <div class="empty-state" th:if="${#lists.isEmpty(days)}">
+        <i class="bi bi-calendar-x" aria-hidden="true"></i>
+        <span>Ο ιατρός δεν έχει ώρες υποδοχής τις επόμενες 14 ημέρες. Δοκιμάστε άλλον ιατρό.</span>
+    </div>
+    <div class="slot-legend small text-muted mb-2" th:unless="${#lists.isEmpty(days)}">
+        <span><span class="slot slot-sample" aria-hidden="true">10:00</span> ελεύθερη</span>
+        <span><span class="slot slot-sample" aria-hidden="true" disabled>10:00</span> κλεισμένη</span>
+    </div>
+    <div class="slot-grid" th:unless="${#lists.isEmpty(days)}">
+        <section class="slot-day" th:each="d : ${days}"
+                 th:attr="aria-label=${#temporals.format(d.date, 'EEEE d MMMM')}">
+            <header class="slot-day-head">
+                <strong th:text="${#temporals.format(d.date, 'EEEE')}">Δευτέρα</strong>
+                <span th:text="${#temporals.format(d.date, 'd MMMM')}">26 Οκτωβρίου</span>
+                <small th:text="${d.freeCount == 0} ? 'πλήρες' : ${d.freeCount} + ' ελεύθερες'"
+                       th:classappend="${d.freeCount == 0} ? 'text-danger'"></small>
+            </header>
+            <div class="slot-list">
+                <button class="slot" type="submit" name="slot" th:each="o : ${d.options}"
+                        th:value="${#temporals.format(o.start, 'yyyy-MM-dd''T''HH:mm')}"
+                        th:disabled="${!o.free}" th:text="${#temporals.format(o.start, 'HH:mm')}"
+                        th:attr="aria-label=${#temporals.format(o.start, 'EEEE d MMMM HH:mm')} + (${o.free} ? '' : ', κλεισμένη')">10:00</button>
+            </div>
+        </section>
+    </div>
+</div>
 </body>
 </html>

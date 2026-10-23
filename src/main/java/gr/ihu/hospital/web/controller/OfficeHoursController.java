@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import gr.ihu.hospital.service.OfficeHoursResult;
 import gr.ihu.hospital.service.OfficeHoursService;
 import gr.ihu.hospital.web.dto.OfficeHoursForm;
 import jakarta.validation.Valid;
@@ -41,8 +42,12 @@ public class OfficeHoursController {
                          Model model, RedirectAttributes flash) {
         if (!result.hasErrors()) {
             try {
-                officeHours.define(principal.getName(), form);
-                flash.addFlashAttribute("success", "Οι ώρες υποδοχής καταχωρήθηκαν.");
+                OfficeHoursResult outcome = officeHours.define(principal.getName(), form);
+                flash.addFlashAttribute("success", outcome.getCreated().size() == 1 ? "Οι ώρες υποδοχής καταχωρήθηκαν."
+                    : "Καταχωρήθηκαν ώρες υποδοχής για " + outcome.getCreated().size() + " ημέρες.");
+                if (!outcome.getRejected().isEmpty()) {
+                    flash.addFlashAttribute("rejected", outcome.getRejected());
+                }
                 return "redirect:/office-hours";
             } catch (IllegalArgumentException e) {
                 result.reject("hours", e.getMessage());

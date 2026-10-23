@@ -1,38 +1,57 @@
 <!DOCTYPE html>
 <html lang="el" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout :: page(~{::title}, ~{::section})}">
-<head><title>Ραντεβού ιατρού</title></head>
+<head><title>Ραντεβού ιατρού · Γενικό Νοσοκομείο</title></head>
 <body>
 <section>
-    <h1 class="h3 mb-3">Τα ραντεβού μου</h1>
-    <p class="text-muted" th:if="${#lists.isEmpty(appointments)}">Δεν υπάρχουν ραντεβού.</p>
-    <div class="table-responsive" th:unless="${#lists.isEmpty(appointments)}">
-        <table class="table align-middle">
-            <thead><tr><th>Ημέρα και ώρα</th><th>Ασθενής</th><th>Υπηρεσία</th><th>Αίθουσα</th><th>Αιτία</th><th>Κατάσταση</th><th></th></tr></thead>
-            <tbody>
-            <tr th:each="a : ${appointments}" th:classappend="${!a.active} ? 'text-muted'">
-                <td th:text="${#temporals.format(a.start, 'EEE dd/MM HH:mm')}"></td>
-                <td th:text="${a.patient.fullName} + ' · ΑΜΚΑ ' + ${a.patient.amka}"></td>
-                <td th:text="${a.service.name}"></td>
-                <td th:text="${a.room.name}"></td>
-                <td th:text="${a.reason}"></td>
-                <td>
-                    <span th:text="${a.status.label}"></span>
-                    <span class="d-block small text-muted" th:if="${a.rating != null}" th:text="'★ ' + ${a.rating.stars} + '/5'"></span>
-                    <a class="d-block small" th:href="@{/records/{id}(id=${a.patient.id})}">Φάκελος</a>
-                </td>
-                <td>
-                    <form th:if="${a.active}" th:action="@{/appointments/{id}/status(id=${a.id})}" method="post" class="d-flex gap-1">
-                        <label class="visually-hidden" th:for="'s-' + ${a.id}">Κατάσταση</label>
-                        <select class="form-select form-select-sm" name="status" th:id="'s-' + ${a.id}">
-                            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.label}"></option>
-                        </select>
-                        <button class="btn btn-sm btn-outline-primary" type="submit">Αλλαγή</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <header class="page-head">
+        <div>
+            <h1>Τα ραντεβού μου</h1>
+            <p class="text-muted mb-0">Από την προηγούμενη εβδομάδα και μετά. Ολοκλήρωση ή μη προσέλευση μόνο αφού ξεκινήσει το ραντεβού.</p>
+        </div>
+        <a class="btn btn-outline-primary" th:href="@{/office-hours}"><i class="bi bi-door-open" aria-hidden="true"></i> Ώρες υποδοχής</a>
+    </header>
+    <div class="empty-state" th:if="${#maps.isEmpty(agenda)}">
+        <i class="bi bi-calendar" aria-hidden="true"></i>
+        <span>Δεν υπάρχουν ραντεβού. Ορίστε ώρες υποδοχής για να σας βρίσκουν οι ασθενείς.</span>
+    </div>
+    <div class="card mb-3" th:each="day : ${agenda}" th:classappend="${day.key == today} ? 'agenda-day-today'">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="h6 mb-0">
+                <span th:text="${#temporals.format(day.key, 'EEEE d MMMM')}">Ημέρα</span>
+                <span class="badge text-bg-success ms-1" th:if="${day.key == today}">σήμερα</span>
+            </h2>
+            <span class="small text-muted" th:text="${#lists.size(day.value)} + ' ραντεβού'"></span>
+        </div>
+        <div class="card-body pt-1">
+            <ul class="agenda">
+                <li th:each="a : ${day.value}" th:classappend="${!a.active} ? 'text-muted'">
+                    <time th:attr="datetime=${a.start}">
+                        <span th:text="${#temporals.format(a.start, 'HH:mm')}"></span>
+                        <small th:text="${a.room.name}"></small>
+                    </time>
+                    <span>
+                        <a class="d-block fw-semibold text-decoration-none" th:href="@{/records/{id}(id=${a.patient.id})}"
+                           th:text="${a.patient.fullName}"></a>
+                        <span class="small text-muted"
+                              th:text="${a.service.name} + (${a.reason != null and a.reason != ''} ? ' · ' + ${a.reason} : '') + ' · ΑΜΚΑ ' + ${a.patient.amka}"></span>
+                        <span class="d-block small text-muted" th:if="${a.rating != null}" th:text="'Αξιολόγηση ★ ' + ${a.rating.stars} + '/5'"></span>
+                    </span>
+                    <span class="d-flex flex-wrap gap-1 justify-content-end align-items-center">
+                        <span class="badge" th:text="${a.status.label}"
+                              th:classappend="${a.status.name() == 'CANCELLED'} ? 'text-bg-danger' : (${a.status.name() == 'COMPLETED'} ? 'text-bg-success' : 'text-bg-light border')"></span>
+                        <th:block th:if="${a.active and a.status.name() != 'COMPLETED' and a.status.name() != 'NO_SHOW'}">
+                            <form th:each="s : ${statuses}" th:action="@{/appointments/{id}/status(id=${a.id})}" method="post"
+                                  th:unless="${s == a.status}">
+                                <input type="hidden" name="status" th:value="${s}">
+                                <button class="btn btn-sm" type="submit" th:text="${s.label}"
+                                        th:classappend="${s.name() == 'NO_SHOW'} ? 'btn-outline-danger' : 'btn-outline-primary'"></button>
+                            </form>
+                        </th:block>
+                    </span>
+                </li>
+            </ul>
+        </div>
     </div>
 </section>
 </body>

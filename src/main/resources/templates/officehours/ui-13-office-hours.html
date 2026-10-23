@@ -29,13 +29,31 @@
                     <option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.name}"></option>
                 </select>
             </div>
-            <div th:replace="~{fragments :: field('slotMinutes', 'Διάρκεια ραντεβού (λεπτά)', 'number')}"></div>
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label class="form-label" for="slotMinutes">Διάρκεια ραντεβού</label>
+                    <select class="form-select" id="slotMinutes" th:field="*{slotMinutes}">
+                        <option th:each="m : ${ {15, 20, 30, 45, 60} }" th:value="${m}" th:text="${m} + ' λεπτά'"></option>
+                    </select>
+                </div>
+                <div class="col-6 mb-3">
+                    <label class="form-label" for="weeks">Επανάληψη</label>
+                    <select class="form-select" id="weeks" th:field="*{weeks}">
+                        <option value="1">Μόνο αυτή την ημέρα</option>
+                        <option th:each="w : ${#numbers.sequence(2, 8)}" th:value="${w}" th:text="'Κάθε εβδομάδα, ' + ${w} + ' εβδομάδες'"></option>
+                    </select>
+                </div>
+            </div>
             <p class="small text-muted">Απορρίπτονται ώρες που συγκρούονται με βάρδια, εφημερία, άδεια ή κράτηση της αίθουσας.</p>
             <button class="btn btn-primary" type="submit">Καταχώριση</button>
         </form>
     </div>
     <div class="col-12 col-lg-7">
         <h2 class="h5">Οι επόμενες ώρες μου</h2>
+        <div class="alert alert-warning" th:if="${rejected}">
+            <strong>Κάποιες εβδομάδες δεν καταχωρήθηκαν:</strong>
+            <ul class="mb-0 small"><li th:each="r : ${rejected}" th:text="${#temporals.format(r.key, 'EEE dd/MM')} + ': ' + ${r.value}"></li></ul>
+        </div>
         <div class="alert alert-warning" th:if="${confirmDelete}">
             Υπάρχουν <strong th:text="${confirmCount}"></strong> κλεισμένα ραντεβού σε αυτές τις ώρες. Αν συνεχίσετε,
             θα ακυρωθούν και οι ασθενείς θα ειδοποιηθούν.
@@ -48,7 +66,8 @@
         <ul class="list-group" th:unless="${#lists.isEmpty(hours)}">
             <li class="list-group-item d-flex justify-content-between align-items-center" th:each="h : ${hours}">
                 <span th:text="${#temporals.format(h.date, 'EEE dd/MM/yyyy')} + ' · ' + ${#temporals.format(h.startTime, 'HH:mm')} + '–' + ${#temporals.format(h.endTime, 'HH:mm')} + ' · ' + ${h.room.name} + ' · ανά ' + ${h.slotMinutes} + '′'"></span>
-                <form th:action="@{/office-hours/{id}/delete(id=${h.id})}" method="post">
+                <form th:action="@{/office-hours/{id}/delete(id=${h.id})}" method="post"
+                      onsubmit="return confirm('Να διαγραφούν αυτές οι ώρες υποδοχής;');">
                     <button class="btn btn-sm btn-outline-danger" type="submit">Διαγραφή</button>
                 </form>
             </li>

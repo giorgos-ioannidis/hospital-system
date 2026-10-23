@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::section})}">
+<head><title>Αλλαγή ραντεβού · Γενικό Νοσοκομείο</title></head>
+<body>
+<section th:with="a=${appointment}">
+    <header class="page-head">
+        <div>
+            <p class="eyebrow mb-1">Αλλαγή ραντεβού <span class="font-monospace" th:text="${a.code}"></span></p>
+            <h1 th:text="${a.service.name}">Υπηρεσία</h1>
+            <p class="text-muted mb-0"
+               th:text="${a.doctor.fullName} + ' · τώρα: ' + ${#temporals.format(a.start, 'EEEE d MMMM, HH:mm')}"></p>
+        </div>
+        <a class="btn btn-outline-secondary" th:href="@{/appointments/mine}"><i class="bi bi-arrow-left" aria-hidden="true"></i> Πίσω</a>
+    </header>
+    <p class="text-muted">Επιλέξτε νέα ώρα με τον ίδιο ιατρό. Η αλλαγή επιτρέπεται έως 24 ώρες πριν από το ραντεβού.</p>
+    <form th:action="@{/appointments/{id}/reschedule(id=${a.id})}" method="post">
+        <div th:replace="~{fragments :: slotGrid(${days})}"></div>
+    </form>
+</section>
+</body>
+</html>

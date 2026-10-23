@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
@@ -121,6 +122,36 @@ public class AppointmentService {
                                                                                                 today.plusDays(SEARCH_DAYS)));
         }
         return result;
+    }
+
+    /**
+     * UC-14 βήμα 5: το πλέγμα ωρών των επόμενων 14 ημερών για ιατρό και υπηρεσία. Ελεύθερη είναι μια ώρα μόνο αν
+     * ιατρός, αίθουσα και εξοπλισμός είναι ελεύθεροι (ίδιος AvailabilityChecker με τον έλεγχο του UC-13).
+     */
+    @PreAuthorize("hasRole('PATIENT')")
+    @Transactional(readOnly = true)
+    public List<DaySlots> availableSlots(Long doctorId, Long serviceId) {
+        Doctor doctor = staff.findById(doctorId).filter(Doctor.class::isInstance).map(Doctor.class::cast).orElseThrow();
+        return slotsFor(doctor, services.findById(serviceId).orElseThrow(), null);
+    }
+
+    /** Το πλέγμα ωρών· με moving = το ραντεβού που μετακινείται, ώστε η δική του ώρα να μη φαίνεται κλεισμένη. */
+    List<DaySlots> slotsFor(Doctor doctor, MedicalService service, Appointment moving) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate to = now.toLocalDate().plusDays(SEARCH_DAYS);
+        List<OfficeHours> hours = officeHours.findByDoctorAndDateBetweenOrderByDateAscStartTimeAsc(doctor,
+            now.toLocalDate(), to);
+        AvailabilityChecker checker = checkerFor(doctor, now.toLocalDate(), to, hours, moving);
+        Map<LocalDate, DaySlots> days = new TreeMap<>();
+        for (OfficeHours officeHour : hours) {
+            for (TimeSlot slot : slots.generate(officeHour)) {
+                if (slot.getStart().isAfter(now)) {
+                    days.computeIfAbsent(officeHour.getDate(), DaySlots::new).add(slot.getStart(),
+                        checker.isFree(doctor, officeHour.getRoom(), service.getEquipment(), slot));
+                }
+            }
+        }
+        return new ArrayList<>(days.values());
     }
 
     /** UC-13: είναι ελεύθεροι ιατρός, αίθουσα και εξοπλισμός; Αν όχι, οι 3 πλησιέστερες ελεύθερες ώρες. */

@@ -64,19 +64,31 @@ public class OfficeHoursService {
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
-    public OfficeHours define(String username, OfficeHoursForm form) {
+    /**
+     * Καταχωρεί τις ώρες για την ημερομηνία και, αν ζητηθεί, την ίδια ημέρα των επόμενων εβδομάδων. Κάθε εβδομάδα
+     * ελέγχεται χωριστά· αν δεν περάσει καμία, πετά το μήνυμα της σύγκρουσης.
+     */
+    public OfficeHoursResult define(String username, OfficeHoursForm form) {
         Doctor me = users.getByUsername(username, Doctor.class);
         Room room = rooms.findById(form.getRoomId()).orElseThrow();
         if (!room.getDepartment().getId().equals(me.getDepartment().getId())) {
             throw new IllegalArgumentException("Η αίθουσα ανήκει σε άλλο τμήμα.");
         }
-        OfficeHours hours = new OfficeHours(me, room, form.getDate(), form.getStartTime(), form.getEndTime(),
-                                            form.getSlotMinutes());
-        List<String> conflicts = conflicts(hours);
-        if (!conflicts.isEmpty()) {
-            throw new IllegalArgumentException(String.join(" ", conflicts));
+        OfficeHoursResult result = new OfficeHoursResult();
+        for (int week = 0; week < form.getWeeks(); week++) {
+            OfficeHours hours = new OfficeHours(me, room, form.getDate().plusWeeks(week), form.getStartTime(),
+                                                form.getEndTime(), form.getSlotMinutes());
+            List<String> conflicts = conflicts(hours);
+            if (conflicts.isEmpty()) {
+                result.created(officeHours.save(hours));
+            } else {
+                result.rejected(hours.getDate(), String.join(" ", conflicts));
+            }
         }
-        return officeHours.save(hours);
+        if (result.getCreated().isEmpty()) {
+            throw new IllegalArgumentException(String.join(" ", result.getRejected().values()));
+        }
+        return result;
     }
 
     @PreAuthorize("hasRole('DOCTOR')")

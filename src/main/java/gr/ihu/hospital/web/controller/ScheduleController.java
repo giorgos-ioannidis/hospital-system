@@ -59,14 +59,18 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedules/{id}")
-    public String calendar(@PathVariable Long id, Model model) {
+    public String calendar(@PathVariable Long id, @RequestParam(required = false) java.time.LocalDate date,
+                           @RequestParam(required = false) String slot, Model model) {
         Schedule schedule = schedules.get(id);
         model.addAttribute("schedule", schedule);
         model.addAttribute("calendar", new ScheduleCalendarView(schedule));
         model.addAttribute("violations", schedules.review(schedule));
         model.addAttribute("staff", schedules.departmentStaff(schedule));
         if (!model.containsAttribute("change")) {
-            model.addAttribute("change", new ManualChangeForm());
+            ManualChangeForm change = new ManualChangeForm();
+            change.setDate(date);
+            change.setSlot(slot);
+            model.addAttribute("change", change);
         }
         return "schedule/ui-05b-calendar";
     }

@@ -31,6 +31,11 @@ public class OfficeHoursForm {
     @Max(240)
     private int slotMinutes = 30;
 
+    /** Επανάληψη την ίδια ημέρα και ώρα για τόσες εβδομάδες (1 = μόνο αυτή η ημερομηνία). */
+    @Min(1)
+    @Max(8)
+    private int weeks = 1;
+
     public LocalDate getDate() {
         return date;
     }
@@ -69,5 +74,13 @@ public class OfficeHoursForm {
 
     public void setSlotMinutes(int slotMinutes) {
         this.slotMinutes = slotMinutes;
+    }
+
+    public int getWeeks() {
+        return weeks;
+    }
+
+    public void setWeeks(int weeks) {
+        this.weeks = weeks;
     }
 }

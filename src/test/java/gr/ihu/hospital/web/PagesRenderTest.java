@@ -63,6 +63,9 @@ class PagesRenderTest {
         for (String page : new String[] {"/office-hours", "/appointments/doctor", "/notifications"}) {
             mvc.perform(get(page).with(doctor)).andExpect(status().isOk());
         }
+        mvc.perform(get("/appointments/new?departmentId=1&serviceId=1&doctorId=2").with(patient))
+            .andExpect(status().isOk())
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("name=\"slot\"")));
         mvc.perform(get("/office-hours").with(patient)).andExpect(status().isForbidden());
         mvc.perform(get("/appointments/new").with(doctor)).andExpect(status().isForbidden());
     }
@@ -79,7 +82,7 @@ class PagesRenderTest {
         mvc.perform(post("/appointments/check").with(patient).with(csrf()).param("departmentId", "1")
                 .param("serviceId", "1").param("doctorId", "2").param("date", monday.toString()).param("time", "15:00"))
             .andExpect(status().isOk())
-            .andExpect(content().string(org.hamcrest.Matchers.containsString("Πλησιέστερες ελεύθερες ώρες")));
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("πλησιέστερες ελεύθερες ώρες")));
     }
 
     @Test

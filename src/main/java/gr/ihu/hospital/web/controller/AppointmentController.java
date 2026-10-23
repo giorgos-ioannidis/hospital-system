@@ -3,7 +3,6 @@ package gr.ihu.hospital.web.controller;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -40,13 +39,19 @@ public class AppointmentController {
         this.manage = manage;
     }
 
-    /** Βήματα 2–4: τμήματα, και μετά την επιλογή τμήματος οι ιατροί με τις ώρες υποδοχής τους. */
+    /**
+     * Βήματα 2–5: τμήμα → υπηρεσία και ιατρός (με τις ώρες υποδοχής τους) → πλέγμα ελεύθερων ωρών 14 ημερών.
+     * Κάθε ελεύθερη ώρα είναι κουμπί που οδηγεί στον έλεγχο του UC-13 (βήμα 6).
+     */
     @GetMapping("/appointments/new")
     public String bookForm(@ModelAttribute("form") BookingForm form, Model model) {
         model.addAttribute("departments", appointments.departments());
         if (form.getDepartmentId() != null) {
             model.addAttribute("services", appointments.services(form.getDepartmentId()));
             model.addAttribute("doctors", appointments.doctorsWithHours(form.getDepartmentId()));
+        }
+        if (form.getDoctorId() != null && form.getServiceId() != null) {
+            model.addAttribute("days", appointments.availableSlots(form.getDoctorId(), form.getServiceId()));
         }
         return "appointment/ui-11-book";
     }
@@ -90,6 +95,7 @@ public class AppointmentController {
     @GetMapping("/appointments/mine")
     public String mine(Principal principal, Model model) {
         model.addAttribute("appointments", manage.mine(principal.getName()));
+        model.addAttribute("now", LocalDateTime.now());
         model.addAttribute("deadline", LocalDateTime.now().plusHours(Appointment.CHANGE_DEADLINE_HOURS));
         return "appointment/ui-14-mine";
     }
@@ -101,11 +107,18 @@ public class AppointmentController {
         return "redirect:/appointments/mine";
     }
 
+    /** UI-14b: αλλαγή ραντεβού με το ίδιο πλέγμα ωρών (ίδιος ιατρός και υπηρεσία). */
+    @GetMapping("/appointments/{id}/reschedule")
+    public String rescheduleForm(@PathVariable Long id, Principal principal, Model model) {
+        model.addAttribute("appointment", manage.appointment(principal.getName(), id));
+        model.addAttribute("days", manage.rescheduleOptions(principal.getName(), id));
+        return "appointment/ui-14b-reschedule";
+    }
+
     @PostMapping("/appointments/{id}/reschedule")
-    public String reschedule(@PathVariable Long id, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                             @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime time, Principal principal,
-                             RedirectAttributes flash) {
-        BookingCheck check = manage.reschedule(principal.getName(), id, date, time);
+    public String reschedule(@PathVariable Long id, @RequestParam("slot") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                             LocalDateTime slot, Principal principal, RedirectAttributes flash) {
+        BookingCheck check = manage.reschedule(principal.getName(), id, slot.toLocalDate(), slot.toLocalTime());
         if (check.isAvailable()) {
             flash.addFlashAttribute("success", "Το ραντεβού μεταφέρθηκε.");
         } else {
@@ -126,7 +139,8 @@ public class AppointmentController {
 
     @GetMapping("/appointments/doctor")
     public String doctorAppointments(Principal principal, Model model) {
-        model.addAttribute("appointments", manage.doctorAppointments(principal.getName()));
+        model.addAttribute("agenda", manage.doctorAgenda(principal.getName()));
+        model.addAttribute("today", LocalDate.now());
         model.addAttribute("statuses", new AppointmentStatus[] {
             AppointmentStatus.CONFIRMED, AppointmentStatus.COMPLETED, AppointmentStatus.NO_SHOW});
         return "appointment/ui-15-doctor";

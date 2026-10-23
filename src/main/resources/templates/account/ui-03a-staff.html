@@ -18,7 +18,8 @@
                     <td th:text="${u.username}"></td>
                     <td class="d-flex flex-wrap gap-1">
                         <a class="btn btn-sm btn-outline-primary" th:href="@{/staff/{id}(id=${u.id})}">Επεξεργασία</a>
-                        <form th:action="@{/staff/{id}/active(id=${u.id})}" method="post">
+                        <form th:action="@{/staff/{id}/active(id=${u.id})}" method="post"
+                              th:attr="onsubmit=${u.enabled} ? |return confirm('Απενεργοποίηση του λογαριασμού ${u.username};');| : null">
                             <input type="hidden" name="active" th:value="${!u.enabled}">
                             <button class="btn btn-sm btn-outline-secondary" type="submit"
                                     th:text="${u.enabled} ? 'Απενεργοποίηση' : 'Ενεργοποίηση'"></button>

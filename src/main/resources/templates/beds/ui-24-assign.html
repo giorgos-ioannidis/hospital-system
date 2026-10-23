@@ -54,7 +54,8 @@
                     <td th:text="${a.severity}"></td>
                     <td th:text="${#temporals.format(a.admittedAt, 'dd/MM HH:mm')}"></td>
                     <td>
-                        <form th:action="@{/beds/{id}/discharge(id=${a.id})}" method="post">
+                        <form th:action="@{/beds/{id}/discharge(id=${a.id})}" method="post"
+                              th:attr="onsubmit=|return confirm('Εξιτήριο για ${a.patient.fullName};');|">
                             <button class="btn btn-sm btn-outline-secondary" type="submit">Εξιτήριο</button>
                         </form>
                     </td>
