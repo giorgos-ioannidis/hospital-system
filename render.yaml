@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: hospital-system
+    runtime: docker
+    plan: free
+    region: frankfurt
+    healthCheckPath: /login
