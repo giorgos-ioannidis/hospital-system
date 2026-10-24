@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1290" viewBox="0 0 1500 1290" font-family="Helvetica, Arial, sans-serif">
+<defs>
+<marker id="open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0L10 5L0 10" fill="none" stroke="#000" stroke-width="1.4"/></marker>
+<marker id="tri" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="14" markerHeight="14" orient="auto"><path d="M0 0L12 6L0 12z" fill="#fff" stroke="#000" stroke-width="1.2"/></marker>
+</defs>
+<rect width="1500" height="1290" fill="#fff"/>
+<rect x="330" y="70" width="840" height="1190" fill="#7ccff5" stroke="#000" stroke-width="1.2"/>
+<text x="750" y="98" text-anchor="middle" font-size="15" fill="#000">Πληροφοριακό Σύστημα Νοσοκομείου</text>
+<ellipse cx="620" cy="140" rx="150" ry="22" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="144" text-anchor="middle" font-size="13" fill="#000">UC-01 Σύνδεση</text>
+<ellipse cx="620" cy="215" rx="150" ry="22" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="219" text-anchor="middle" font-size="13" fill="#000">UC-02 Διαχείριση Λογαριασμών</text>
+<ellipse cx="620" cy="290" rx="150" ry="22" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="294" text-anchor="middle" font-size="13" fill="#000">UC-11 Διοικητικός Έλεγχος</text>
+<ellipse cx="620" cy="365" rx="150" ry="22" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="369" text-anchor="middle" font-size="13" fill="#000">UC-08 Διαχείριση Κλινών</text>
+<ellipse cx="620" cy="460" rx="150" ry="42" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="440" text-anchor="middle" font-size="13" fill="#000">UC-03 Διαχείριση Προγράμματος</text>
+<text x="620" y="456" text-anchor="middle" font-size="13" fill="#000">Βαρδιών/Εφημεριών</text>
+<line x1="470.04252303416416" y1="461" x2="769.9574769658359" y2="461" stroke="#000" stroke-width="1"/>
+<text x="620" y="474" text-anchor="middle" font-size="11.5" font-weight="700" fill="#000">extension points</text>
+<text x="620" y="488" text-anchor="middle" font-size="11.5" fill="#000">Εξαγωγή</text>
+<ellipse cx="620" cy="560" rx="150" ry="22" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="564" text-anchor="middle" font-size="13" fill="#000">UC-04 Διαχείριση Αδειών</text>
+<ellipse cx="620" cy="635" rx="150" ry="22" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="639" text-anchor="middle" font-size="13" fill="#000">UC-05 Διαχείριση Απουσιών</text>
+<ellipse cx="620" cy="730" rx="150" ry="42" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="710" text-anchor="middle" font-size="13" fill="#000">UC-09 Διαχείριση</text>
+<text x="620" y="726" text-anchor="middle" font-size="13" fill="#000">Ιατρικού Φακέλου</text>
+<line x1="470.04252303416416" y1="731" x2="769.9574769658359" y2="731" stroke="#000" stroke-width="1"/>
+<text x="620" y="744" text-anchor="middle" font-size="11.5" font-weight="700" fill="#000">extension points</text>
+<text x="620" y="758" text-anchor="middle" font-size="11.5" fill="#000">Εξαγωγή</text>
+<ellipse cx="620" cy="830" rx="150" ry="22" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="834" text-anchor="middle" font-size="13" fill="#000">UC-06 Διαχείριση Ωρών Υποδοχής</text>
+<ellipse cx="620" cy="915" rx="150" ry="36" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="903" text-anchor="middle" font-size="13" fill="#000">UC-07 Διαχείριση Ραντεβού</text>
+<line x1="472.86297014158686" y1="908" x2="767.1370298584131" y2="908" stroke="#000" stroke-width="1"/>
+<text x="620" y="921" text-anchor="middle" font-size="11.5" font-weight="700" fill="#000">extension points</text>
+<text x="620" y="935" text-anchor="middle" font-size="11.5" fill="#000">Εξαγωγή</text>
+<ellipse cx="620" cy="1005" rx="150" ry="22" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="1009" text-anchor="middle" font-size="13" fill="#000">UC-10 Διαχείριση Εξετάσεων</text>
+<ellipse cx="620" cy="1080" rx="150" ry="22" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="1084" text-anchor="middle" font-size="13" fill="#000">UC-12 Πληροφορίες Νοσοκομείου</text>
+<ellipse cx="620" cy="1155" rx="150" ry="22" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="620" y="1159" text-anchor="middle" font-size="13" fill="#000">UC-14 Αποστολή Ειδοποιήσεων</text>
+<ellipse cx="1040" cy="700" rx="100" ry="22" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="1040" y="704" text-anchor="middle" font-size="13" fill="#000">UC-13 Εξαγωγή PDF</text>
+<circle cx="90" cy="146" r="10" fill="#7ccff5" stroke="#000" stroke-width="1.6"/>
+<path d="M90 156V184M74 166H106M90 184L77 204M90 184L103 204" stroke="#000" stroke-width="1.6" fill="none"/>
+<text x="90" y="222" text-anchor="middle" font-size="13.5" font-weight="600" fill="#000">Χρήστης</text>
+<circle cx="90" cy="386" r="10" fill="#7ccff5" stroke="#000" stroke-width="1.6"/>
+<path d="M90 396V424M74 406H106M90 424L77 444M90 424L103 444" stroke="#000" stroke-width="1.6" fill="none"/>
+<text x="90" y="462" text-anchor="middle" font-size="13.5" font-weight="600" fill="#000">Προϊστάμενος</text>
+<circle cx="90" cy="616" r="10" fill="#7ccff5" stroke="#000" stroke-width="1.6"/>
+<path d="M90 626V654M74 636H106M90 654L77 674M90 654L103 674" stroke="#000" stroke-width="1.6" fill="none"/>
+<text x="90" y="692" text-anchor="middle" font-size="13.5" font-weight="600" fill="#000">Νοσηλευτής</text>
+<circle cx="90" cy="896" r="10" fill="#7ccff5" stroke="#000" stroke-width="1.6"/>
+<path d="M90 906V934M74 916H106M90 934L77 954M90 934L103 954" stroke="#000" stroke-width="1.6" fill="none"/>
+<text x="90" y="972" text-anchor="middle" font-size="13.5" font-weight="600" fill="#000">Ιατρός</text>
+<circle cx="1400" cy="871" r="10" fill="#7ccff5" stroke="#000" stroke-width="1.6"/>
+<path d="M1400 881V909M1384 891H1416M1400 909L1387 929M1400 909L1413 929" stroke="#000" stroke-width="1.6" fill="none"/>
+<text x="1400" y="947" text-anchor="middle" font-size="13.5" font-weight="600" fill="#000">Ασθενής</text>
+<circle cx="1400" cy="726" r="10" fill="#7ccff5" stroke="#000" stroke-width="1.6"/>
+<path d="M1400 736V764M1384 746H1416M1400 764L1387 784M1400 764L1413 784" stroke="#000" stroke-width="1.6" fill="none"/>
+<text x="1400" y="802" text-anchor="middle" font-size="13.5" font-weight="600" fill="#000">Σύστημα</text>
+<text x="1400" y="817" text-anchor="middle" font-size="13.5" font-weight="600" fill="#000">Πληρωμών</text>
+<circle cx="1400" cy="1121" r="10" fill="#7ccff5" stroke="#000" stroke-width="1.6"/>
+<path d="M1400 1131V1159M1384 1141H1416M1400 1159L1387 1179M1400 1159L1413 1179" stroke="#000" stroke-width="1.6" fill="none"/>
+<text x="1400" y="1197" text-anchor="middle" font-size="13.5" font-weight="600" fill="#000">Χρόνος</text>
+<line x1="112" y1="174" x2="470.0" y2="140.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="174" x2="470.0" y2="215.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="414" x2="470.0" y2="215.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="414" x2="470.0" y2="290.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="414" x2="470.0" y2="365.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="414" x2="470.0" y2="460.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="414" x2="470.0" y2="560.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="414" x2="470.0" y2="635.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="644" x2="470.0" y2="460.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="644" x2="470.0" y2="560.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="644" x2="470.0" y2="635.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="644" x2="470.0" y2="730.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="924" x2="470.0" y2="830.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="924" x2="470.0" y2="915.0" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="924" x2="470.0" y2="1005.0" stroke="#000" stroke-width="1.2"/>
+<line x1="1378" y1="899" x2="770.0" y2="215.0" stroke="#000" stroke-width="1.2"/>
+<line x1="1378" y1="899" x2="770.0" y2="730.0" stroke="#000" stroke-width="1.2"/>
+<line x1="1378" y1="899" x2="770.0" y2="915.0" stroke="#000" stroke-width="1.2"/>
+<line x1="1378" y1="899" x2="770.0" y2="1005.0" stroke="#000" stroke-width="1.2"/>
+<line x1="1378" y1="899" x2="770.0" y2="1080.0" stroke="#000" stroke-width="1.2"/>
+<line x1="1378" y1="754" x2="770.0" y2="915.0" stroke="#000" stroke-width="1.2"/>
+<line x1="1378" y1="1149" x2="770.0" y2="1155.0" stroke="#000" stroke-width="1.2"/>
+<line x1="1040.0" y1="678.0" x2="770.0" y2="460.0" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#open)"/>
+<text x="949" y="565" text-anchor="middle" font-size="12" fill="#000">&lt;&lt;Extend&gt;&gt;</text>
+<line x1="940.0" y1="700.0" x2="770.0" y2="730.0" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#open)"/>
+<text x="855" y="701" text-anchor="middle" font-size="12" fill="#000">&lt;&lt;Extend&gt;&gt;</text>
+<line x1="1040.0" y1="722.0" x2="770.0" y2="915.0" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#open)"/>
+<text x="953" y="818" text-anchor="middle" font-size="12" fill="#000">&lt;&lt;Extend&gt;&gt;</text>
+<path d="M90 374V242" fill="none" stroke="#000" stroke-width="1.3" marker-end="url(#tri)"/>
+<path d="M66 656H30V176H62" fill="none" stroke="#000" stroke-width="1.3" marker-end="url(#tri)"/>
+<path d="M90 884V714" fill="none" stroke="#000" stroke-width="1.3" marker-end="url(#tri)"/>
+<path d="M1422 885H1470V40H90V132" fill="none" stroke="#000" stroke-width="1.3" marker-end="url(#tri)"/>
+</svg>

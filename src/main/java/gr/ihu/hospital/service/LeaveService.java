@@ -34,15 +34,18 @@ public class LeaveService {
     private final StaffingRequirementRepository requirements;
     private final UserRepository users;
     private final ScheduleService schedules;
+    private final SupervisorScope scope;
 
     public LeaveService(LeaveRequestRepository leaves, AbsenceRepository absences, HealthStaffRepository staff,
-                        StaffingRequirementRepository requirements, UserRepository users, ScheduleService schedules) {
+                        StaffingRequirementRepository requirements, UserRepository users, ScheduleService schedules,
+                        SupervisorScope scope) {
         this.leaves = leaves;
         this.absences = absences;
         this.staff = staff;
         this.requirements = requirements;
         this.users = users;
         this.schedules = schedules;
+        this.scope = scope;
     }
 
     @PreAuthorize("hasAnyRole('DOCTOR', 'NURSE')")
@@ -66,7 +69,9 @@ public class LeaveService {
     public List<PendingLeave> pending() {
         List<PendingLeave> pending = new ArrayList<>();
         for (LeaveRequest leave : leaves.findByStatusOrderByCreatedAtAsc(LeaveStatus.PENDING)) {
-            pending.add(new PendingLeave(leave, gapsFor(leave)));
+            if (scope.covers(leave.getStaff().getDepartment())) {
+                pending.add(new PendingLeave(leave, gapsFor(leave)));
+            }
         }
         return pending;
     }
@@ -75,13 +80,16 @@ public class LeaveService {
     @PreAuthorize("hasRole('SUPERVISOR')")
     public int approve(Long id, String username) {
         LeaveRequest leave = leaves.findById(id).orElseThrow();
+        scope.check(leave.getStaff().getDepartment());
         leave.approve(users.getByUsername(username, Supervisor.class));
         return schedules.releaseAssignments(leave.getStaff(), leave.getStartDate(), leave.getEndDate());
     }
 
     @PreAuthorize("hasRole('SUPERVISOR')")
     public void reject(Long id, String username) {
-        leaves.findById(id).orElseThrow().reject(users.getByUsername(username, Supervisor.class));
+        LeaveRequest leave = leaves.findById(id).orElseThrow();
+        scope.check(leave.getStaff().getDepartment());
+        leave.reject(users.getByUsername(username, Supervisor.class));
     }
 
     private List<StaffingGap> gapsFor(LeaveRequest leave) {

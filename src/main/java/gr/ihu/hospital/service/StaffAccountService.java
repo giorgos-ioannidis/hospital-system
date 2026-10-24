@@ -1,5 +1,6 @@
 package gr.ihu.hospital.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,19 +32,22 @@ public class StaffAccountService {
     private final DepartmentRepository departments;
     private final SpecialtyRepository specialties;
     private final PasswordEncoder encoder;
+    private final SupervisorScope scope;
 
     public StaffAccountService(UserRepository users, DepartmentRepository departments, SpecialtyRepository specialties,
-                               PasswordEncoder encoder) {
+                               PasswordEncoder encoder, SupervisorScope scope) {
         this.users = users;
         this.departments = departments;
         this.specialties = specialties;
         this.encoder = encoder;
+        this.scope = scope;
     }
 
     @PreAuthorize("hasRole('SUPERVISOR')")
     public User createStaff(StaffAccountForm form) {
         requireUnique(form.getUsername(), form.getEmail());
         Department department = departments.findById(form.getDepartmentId()).orElseThrow();
+        scope.check(department);
         Specialty specialty = form.getSpecialtyId() == null ? null : specialties.findById(form.getSpecialtyId()).orElseThrow();
         if (form.getRole() != Role.SUPERVISOR && specialty == null) {
             throw new IllegalArgumentException("Ιατροί και νοσηλευτές χρειάζονται ειδικότητα.");
@@ -56,7 +60,13 @@ public class StaffAccountService {
     @PreAuthorize("hasRole('SUPERVISOR')")
     @Transactional(readOnly = true)
     public List<User> staffAccounts() {
-        return users.findStaffAccounts();
+        List<User> mine = new ArrayList<>();
+        for (User user : users.findStaffAccounts()) {
+            if (scope.covers(departmentOf(user))) {
+                mine.add(user);
+            }
+        }
+        return mine;
     }
 
     @PreAuthorize("hasRole('SUPERVISOR')")
@@ -66,6 +76,7 @@ public class StaffAccountService {
         if (user instanceof Patient) {
             throw new IllegalArgumentException("Οι λογαριασμοί ασθενών δεν διαχειρίζονται από εδώ.");
         }
+        scope.check(departmentOf(user));
         return user;
     }
 
@@ -78,6 +89,7 @@ public class StaffAccountService {
         }
         user.updateContact(form.getEmail(), form.getPhone());
         Department department = departments.findById(form.getDepartmentId()).orElseThrow();
+        scope.check(department);
         if (user instanceof HealthStaff) {
             ((HealthStaff) user).reassign(department, specialtyOf(form.getSpecialtyId()));
         } else {
@@ -102,12 +114,22 @@ public class StaffAccountService {
 
     @Transactional(readOnly = true)
     public List<Department> departments() {
-        return departments.findAllByOrderByNameAsc();
+        List<Department> mine = new ArrayList<>();
+        for (Department department : departments.findAllByOrderByNameAsc()) {
+            if (scope.covers(department)) {
+                mine.add(department);
+            }
+        }
+        return mine;
     }
 
     @Transactional(readOnly = true)
     public List<Specialty> specialties() {
         return specialties.findAllByOrderByNameAsc();
+    }
+
+    private static Department departmentOf(User user) {
+        return user instanceof HealthStaff ? ((HealthStaff) user).getDepartment() : ((Supervisor) user).getDepartment();
     }
 
     private Specialty specialtyOf(Long specialtyId) {
