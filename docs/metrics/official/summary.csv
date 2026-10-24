@@ -171,4 +171,4 @@ web.dto,PatientRegistrationForm,50,18,0.95,0,0,1,18,153,2
 web.dto,ScheduleCalendarView,52,7,2,0,0,4,21,9,2
 web.dto,ScheduleParamsForm,21,8,0.89,0,0,1,8,28,2
 web.dto,StaffAccountForm,47,18,0.95,0,0,1,18,153,2
-web.dto,StaffEditForm,31,9,1,0,0,6,23,36,2
+web.dto,StaffEditForm,32,9,1,0,0,6,23,36,2
