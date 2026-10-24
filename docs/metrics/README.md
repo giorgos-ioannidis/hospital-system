@@ -32,7 +32,7 @@ java -jar ~/Downloads/MetricsCalculator.jar
 | Μετρική | Τιμή | Στόχος NFR-07 | |
 |---|---|---|---|
 | Αρχεία / μέθοδοι | 173 / 732 | — | |
-| LoC (SIZE1, άθροισμα) | 3.561 | — | |
+| LoC (SIZE1, άθροισμα) | 3.562 | — | |
 | CC ανά μέθοδο | μέσος όρος ανά κλάση ≤ 5 (`UserFactory`)· μέγιστο σε μία μέθοδο = 8 (CK) | ≤ 10 | ✅ |
 | WMPC1 ανά κλάση | MetricsCalculator: WMC ≤ 23 (`Appointment`)· CK (άθροισμα CC): ≤ 30 | ≤ 30 | ✅ |
 | DIT, μέγιστο | 2 (κανόνες: `Rule` → `HardRule` → `SpecialtyRule`) | — | |

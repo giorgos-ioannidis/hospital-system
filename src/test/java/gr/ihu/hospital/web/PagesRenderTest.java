@@ -39,6 +39,7 @@ class PagesRenderTest {
         mvc.perform(get("/staff/2").with(SUPERVISOR)).andExpect(status().isOk());
         // UC-03: ο doctor2 ανήκει στο τμήμα 2, εκτός του Προϊσταμένου του τμήματος 1
         mvc.perform(get("/staff/3").with(SUPERVISOR)).andExpect(status().isForbidden());
+        mvc.perform(get("/staff/3").with(user("supervisor2").roles("SUPERVISOR"))).andExpect(status().isOk());
         // UC-03: ο Προϊστάμενος του τμήματος 1 δεν παράγει πρόγραμμα για το τμήμα 2
         mvc.perform(post("/schedules").with(SUPERVISOR).with(csrf())
                 .param("departmentId", "2").param("month", YearMonth.now().plusMonths(1).toString())

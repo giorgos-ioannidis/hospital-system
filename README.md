@@ -25,7 +25,7 @@ Windows: `mvnw.cmd spring-boot:run`.
 
 | Ρόλος | Χρήστες |
 |---|---|
-| Προϊστάμενος | `supervisor` |
+| Προϊστάμενος | `supervisor` (Καρδιολογικό), `supervisor2` (Παθολογικό): ο καθένας βλέπει μόνο το τμήμα του (UC-03) |
 | Ιατρός | `doctor1` … `doctor8` |
 | Νοσηλευτής | `nurse1` … `nurse10` |
 | Ασθενής | `patient1` … `patient5` |
