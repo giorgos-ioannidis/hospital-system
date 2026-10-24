@@ -198,8 +198,8 @@ await both('ui-09-my-schedule');
 await go('/');
 await shot('ui-01b-home-nurse');
 
-// Προϊστάμενος: η αίτηση με την προειδοποίηση στελέχωσης (UC-07)
-await login('supervisor');
+// Προϊστάμενος του Παθολογικού: η αίτηση με την προειδοποίηση στελέχωσης (UC-07)
+await login('supervisor2');
 await go('/leave/pending');
 await shot('ui-07-pending');
 

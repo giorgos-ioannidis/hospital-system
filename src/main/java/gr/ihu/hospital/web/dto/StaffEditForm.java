@@ -1,5 +1,6 @@
 package gr.ihu.hospital.web.dto;
 
+import gr.ihu.hospital.domain.organization.Department;
 import gr.ihu.hospital.domain.user.HealthStaff;
 import gr.ihu.hospital.domain.user.Supervisor;
 import gr.ihu.hospital.domain.user.User;
@@ -32,7 +33,8 @@ public class StaffEditForm {
             form.departmentId = ((HealthStaff) user).getDepartment().getId();
             form.specialtyId = ((HealthStaff) user).getSpecialty().getId();
         } else {
-            form.departmentId = ((Supervisor) user).getDepartment().getId();
+            Department department = ((Supervisor) user).getDepartment();
+            form.departmentId = department == null ? null : department.getId();
         }
         return form;
     }
