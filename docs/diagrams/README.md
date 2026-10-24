@@ -44,3 +44,6 @@ control = controller/service/αλγόριθμος, entity = repositories/οντ�
 Στο Visual Paradigm τα διαγράμματα ακολουθίας σχεδιάζονται χειροκίνητα, με πρότυπο αυτές τις εικόνες: νέο
 **Sequence Diagram**, lifelines με τα ίδια ονόματα, μηνύματα με τη σειρά, και **Combined Fragment** (alt/opt/loop) για
 τις εναλλακτικές ροές. Τα ονόματα των μεθόδων είναι τα ίδια με του κώδικα και του διαγράμματος κλάσεων.
+
+## Διάγραμμα Περιπτώσεων Χρήσης
+`usecase` (.png/.svg): οι 28 ΠΧ του 1ου Παραδοτέου με τους actors. Ξαναβγαίνει με `cd docs/diagrams && python3 usecase_draw.py` (SVG· το PNG από τον browser).

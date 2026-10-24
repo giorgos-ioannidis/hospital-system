@@ -61,10 +61,12 @@ public class ScheduleService {
     private final AbsenceRepository absences;
     private final UserRepository users;
     private final OfficeHoursRepository officeHours;
+    private final SupervisorScope scope;
 
     public ScheduleService(ScheduleRepository schedules, DepartmentRepository departments, HealthStaffRepository staff,
                            StaffingRequirementRepository requirements, LeaveRequestRepository leaves,
-                           AbsenceRepository absences, UserRepository users, OfficeHoursRepository officeHours) {
+                           AbsenceRepository absences, UserRepository users, OfficeHoursRepository officeHours,
+                           SupervisorScope scope) {
         this.schedules = schedules;
         this.departments = departments;
         this.staff = staff;
@@ -73,12 +75,14 @@ public class ScheduleService {
         this.absences = absences;
         this.users = users;
         this.officeHours = officeHours;
+        this.scope = scope;
     }
 
     /** Παράγει νέο DRAFT και αντικαθιστά τυχόν παλιό DRAFT του ίδιου μήνα. */
     @PreAuthorize("hasRole('SUPERVISOR')")
     public Schedule generate(ScheduleParamsForm form) {
         Department department = departments.findById(form.getDepartmentId()).orElseThrow();
+        scope.check(department);
         YearMonth month = form.getMonth();
         ScheduleGenerator generator = form.isFair() ? new FairScheduleGenerator(rules) : new GreedyScheduleGenerator(rules);
         Schedule draft = generator.generate(context(department, month, form.getMaxWeeklyHours())).getSchedule();
@@ -90,13 +94,21 @@ public class ScheduleService {
     @PreAuthorize("hasRole('SUPERVISOR')")
     @Transactional(readOnly = true)
     public Schedule get(Long id) {
-        return schedules.findById(id).orElseThrow();
+        Schedule schedule = schedules.findById(id).orElseThrow();
+        scope.check(schedule.getDepartment());
+        return schedule;
     }
 
     @PreAuthorize("hasRole('SUPERVISOR')")
     @Transactional(readOnly = true)
     public List<Schedule> list() {
-        return schedules.findByStatusNotOrderByPeriodStartDescIdDesc(ScheduleStatus.ARCHIVED);
+        List<Schedule> mine = new ArrayList<>();
+        for (Schedule schedule : schedules.findByStatusNotOrderByPeriodStartDescIdDesc(ScheduleStatus.ARCHIVED)) {
+            if (scope.covers(schedule.getDepartment())) {
+                mine.add(schedule);
+            }
+        }
+        return mine;
     }
 
     /** Ακάλυπτες βάρδιες και παραβιάσεις μαλακών κανόνων, όπως τις βλέπει το RuleChain. */
@@ -115,7 +127,13 @@ public class ScheduleService {
     @PreAuthorize("hasRole('SUPERVISOR')")
     @Transactional(readOnly = true)
     public List<Department> departmentList() {
-        return departments.findAllByOrderByNameAsc();
+        List<Department> mine = new ArrayList<>();
+        for (Department department : departments.findAllByOrderByNameAsc()) {
+            if (scope.covers(department)) {
+                mine.add(department);
+            }
+        }
+        return mine;
     }
 
     /** DRAFT → ACTIVE· το προηγούμενο ACTIVE του ίδιου μήνα αρχειοθετείται. */

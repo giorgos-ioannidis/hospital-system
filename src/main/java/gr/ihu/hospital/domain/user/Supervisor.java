@@ -34,4 +34,9 @@ public class Supervisor extends User {
     public Department getDepartment() {
         return department;
     }
+
+    /** Χωρίς τμήμα = Προϊστάμενος όλου του νοσοκομείου· αλλιώς μόνο το δικό του τμήμα. */
+    public boolean oversees(Department other) {
+        return department == null || other != null && department.getId().equals(other.getId());
+    }
 }
