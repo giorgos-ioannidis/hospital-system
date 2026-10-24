@@ -29,7 +29,7 @@ domain.notification,NotificationStatus,0,0,0,0,0,0,0,0,0
 domain.organization,Admission,37,10,1.10,0,0,4,14,45,3
 domain.organization,Bed,18,5,1,0,0,2,7,10,4
 domain.organization,BedRequest,13,3,1,0,0,1,3,3,2
-domain.organization,Department,12,3,1,0,0,1,3,3,26
+domain.organization,Department,12,3,1,0,0,1,3,3,28
 domain.organization,Equipment,13,3,1,0,0,2,3,3,7
 domain.organization,MedicalService,20,5,1,0,0,3,5,10,9
 domain.organization,Room,13,3,1,0,0,2,3,3,11
@@ -56,7 +56,7 @@ domain.user,Nurse,6,1,1,2,0,1,1,0,0
 domain.user,Patient,20,4,1,1,0,2,4,6,19
 domain.user,Role,0,0,0,0,0,0,0,0,0
 domain.user,StaffAccountData,26,8,1,0,0,3,8,28,2
-domain.user,Supervisor,13,3,1,1,0,3,10,3,7
+domain.user,Supervisor,15,4,1,1,0,3,14,6,8
 domain.user,User,57,19,1.11,0,3,1,24,171,29
 domain.user,UserFactory,12,1,5,0,0,2,1,0,1
 notification,AppointmentEvent,9,2,1,0,0,2,2,1,2
@@ -93,7 +93,7 @@ repository,RoomRepository,0,1,0.50,0,0,1,1,0,2
 repository,ScheduleRepository,5,6,0.86,0,0,2,6,15,6
 repository,SpecialtyRepository,0,1,0.50,0,0,0,1,0,1
 repository,StaffingRequirementRepository,0,1,0.50,0,0,1,1,0,2
-repository,UserRepository,12,9,1,0,0,1,14,36,17
+repository,UserRepository,12,9,1,0,0,1,14,36,18
 repository,WardRepository,0,1,0.50,0,0,1,1,0,1
 scheduling,Evaluation,10,5,0.83,0,0,2,8,10,9
 scheduling,FairScheduleGenerator,9,2,1,2,0,4,12,1,1
@@ -134,15 +134,16 @@ service,DaySlots,34,6,2,0,0,2,11,7,2
 service,ExamService,63,8,1.38,0,0,7,39,28,2
 service,ExportService,46,5,1,0,0,17,84,10,2
 service,HospitalInfoService,81,9,2,0,0,12,30,16,3
-service,LeaveService,66,8,2.17,0,0,13,50,16,2
+service,LeaveService,73,8,2.33,0,0,14,56,16,2
 service,MedicalRecordService,93,13,1.54,0,0,15,68,78,3
 service,OfficeHoursResult,8,4,0.80,0,0,2,8,6,2
 service,OfficeHoursService,116,11,2.09,0,0,20,107,55,1
 service,RecordAccessDeniedException,2,0,-1,0,0,0,0,0,0
 service,RecordView,19,6,1,0,0,2,7,15,2
 service,ScheduleChangeService,46,4,2.50,0,0,12,63,6,1
-service,ScheduleService,94,12,1.33,0,0,20,93,66,5
-service,StaffAccountService,70,10,1.80,0,0,11,68,45,1
+service,ScheduleService,111,12,1.50,0,0,21,98,66,5
+service,StaffAccountService,88,11,1.91,0,0,13,80,55,1
+service,SupervisorScope,11,3,1.33,0,0,4,11,3,4
 web.advice,GlobalExceptionHandler,0,0,0,0,0,0,0,0,0
 web.advice,LayoutAdvice,0,0,0,0,0,0,0,0,1
 web.controller,AbsenceController,0,0,0,0,0,0,0,0,0

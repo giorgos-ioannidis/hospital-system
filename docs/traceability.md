@@ -1,6 +1,6 @@
 # Ιχνηλασιμότητα FR → UC → κλάσεις → tests → UI
 
-Αρίθμηση ΠΧ και FR: **1ο Παραδοτέο** (28 ΠΧ, 36 FR). Κατάσταση: **Επαυξήσεις 1, 2 και 3 ολοκληρωμένες**, εκτός από τα Could UC-22 (Παρουσιολόγιο) και UC-24 (Αναφορές). 51 tests πράσινα.
+Αρίθμηση ΠΧ και FR: **1ο Παραδοτέο** (28 ΠΧ, 36 FR). Κατάσταση: **Επαυξήσεις 1, 2 και 3 ολοκληρωμένες**, εκτός από τα Could UC-22 (Παρουσιολόγιο) και UC-24 (Αναφορές). 52 tests πράσινα.
 
 ## Κατάλογος οθονών (UI)
 Το 1ο Παραδοτέο ορίζει ρητά τα UI-08, UI-11 και UI-12. Τα υπόλοιπα αριθμήθηκαν γύρω από αυτά. Τα templates έχουν το ίδιο όνομα (`templates/<φάκελος>/ui-xx-*.html`), ώστε τα screenshots να αντιστοιχούν ένα προς ένα.
@@ -40,7 +40,7 @@
 |---|---|---|---|---|
 | FR-01 | UC-01 Σύνδεση | `SecurityConfig`, `AuthService`, `User.registerFailedLogin` | `LoginPageTest`, `LoginLockTest` (`login_locksAfterThreeFailures`), `RoleAccessTest` | UI-01a, UI-01b |
 | FR-02 | UC-02 Εγγραφή Ασθενούς | `AccountService.registerPatient`, `Patient` | `PagesRenderTest` | UI-02 |
-| FR-03 | UC-03 CRUD Λογαριασμού Προσωπικού | `AccountService` (create/staffAccounts/updateStaff/setActive), `UserFactory` (Factory) | `PagesRenderTest` | UI-03a, UI-03b |
+| FR-03 | UC-03 CRUD Λογαριασμού Προσωπικού | `StaffAccountService` (createStaff/staffAccounts/updateStaff/setActive), `UserFactory` (Factory), `SupervisorScope` (ο Προϊστάμενος ενεργεί μόνο στο τμήμα του, και στα UC-05/07) | `PagesRenderTest` (403 σε ξένο τμήμα) | UI-03a, UI-03b |
 | **FR-05** | UC-05 Παραγωγή Προγράμματος | `ScheduleGenerator` (Strategy) → `GreedyScheduleGenerator`, `FairScheduleGenerator`, `RuleChain` (CoR) + `Rule`/`HardRule`/`SoftRule` (Template Method), `ScheduleService.change` (χειροκίνητη αλλαγή) | **TC-1** `generator_neverAssignsTwoConsecutiveOnCalls`, **TC-2** `generator_neverSchedulesStaffOnApprovedLeave`, **TC-3** `generator_everyShiftMeetsMinimumStaffingOrIsReportedUncovered`, `generator_completesUnder10Seconds`, `weekendDifferenceAtMostOne`, `Increment1FlowTest` | UI-05a, UI-05b |
 | FR-06 | UC-06 Υποβολή Αίτησης Άδειας | `LeaveService.request` | `Increment1FlowTest` | UI-06 |
 | **FR-07** | UC-07 Έγκριση Αίτησης Άδειας | `StaffingChecker`, `LeaveService.approve` | `StaffingCheckerTest`, `Increment1FlowTest` | UI-07 |
