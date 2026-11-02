@@ -66,3 +66,8 @@ Templates: `templates/<ΠΧ>/ui-xx-*.html`, ίδια ονόματα με τις 
 - `main` μόνο μέσω Pull Request (έλεγχος από A ή F).
 - Branches: `feature/uc-03-schedule-generator`, `test/tc-4-double-booking`.
 - Commits: `UC-03: add RestAfterOnCallRule`.
+
+## Demo στο Render
+`Dockerfile` + `render.yaml` (δωρεάν πλάνο, Frankfurt). Τρέχει με profile `dev`: H2 στη μνήμη με τους demo χρήστες,
+χωρίς σύνδεση στη Supabase. Μετά από 15' χωρίς κίνηση το Render το σταματά. Η πρώτη επίσκεψη μετά παίρνει ~1 λεπτό
+και τα δεδομένα ξεκινούν πάλι από την αρχή.
