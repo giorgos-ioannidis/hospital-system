@@ -144,6 +144,11 @@ async function both(name) {
 // ---------- Σενάριο ----------
 await send('Page.enable');
 await send('Network.enable');
+// Χωρίς κίνηση: η γραμμή ΗΚΓ της αρχικής/σύνδεσης φαίνεται ολόκληρη αμέσως. THEME=dark για σκούρο θέμα.
+await send('Emulation.setEmulatedMedia', { features: [
+  { name: 'prefers-reduced-motion', value: 'reduce' },
+  { name: 'prefers-color-scheme', value: process.env.THEME === 'dark' ? 'dark' : 'light' },
+] });
 await viewport(DESKTOP);
 
 // Δημόσιες οθόνες

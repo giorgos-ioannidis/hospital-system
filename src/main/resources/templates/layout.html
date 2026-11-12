@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Πληροφοριακό Σύστημα Νοσοκομείου: βάρδιες, ραντεβού, φάκελοι, κλίνες.">
-    <meta name="theme-color" content="#0b7470">
+    <meta name="theme-color" content="#0a4744">
+    <meta name="color-scheme" content="light dark">
+    <script th:src="@{/js/theme.js}"></script>
     <title th:replace="${title}">Νοσοκομείο</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
@@ -82,6 +84,13 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav nav-account">
+                    <li class="nav-item">
+                        <button class="nav-link theme-toggle" type="button" data-theme-toggle aria-pressed="false"
+                                title="Σκούρο θέμα" aria-label="Σκούρο θέμα">
+                            <span class="bell-wrap"><i class="bi bi-moon-stars" aria-hidden="true"></i><i class="bi bi-sun" aria-hidden="true"></i></span>
+                            <span class="d-xl-none" aria-hidden="true">Σκούρο θέμα</span>
+                        </button>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link nav-bell" th:href="@{/notifications}" title="Ειδοποιήσεις"
                            th:classappend="${#strings.startsWith(path, '/notifications')} ? 'active'"
